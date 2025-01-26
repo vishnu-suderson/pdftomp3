@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Verify OTP</title>
+    <style>
+        /* Include styles similar to the earlier example for the OTP box */
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <h2>OTP Verification</h2>
+        <p>Enter the OTP sent to your email.</p>
+        <form method="POST">
+            {% csrf_token %}
+            <input type="text" name="otp_1" maxlength="1" required oninput="moveToNext(this, 'otp_2')">
+            <input type="text" name="otp_2" maxlength="1" required oninput="moveToNext(this, 'otp_3')">
+            <input type="text" name="otp_3" maxlength="1" required oninput="moveToNext(this, 'otp_4')">
+            <input type="text" name="otp_4" maxlength="1" required>
+            <button type="submit">Verify OTP</button>
+        </form>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+    <script>
+        function moveToNext(current, nextFieldId) {
+            if (current.value.length === 1 && nextFieldId) {
+                document.getElementsByName(nextFieldId)[0].focus();
+            }
+        }
+    </script>
+</body>
+</html>

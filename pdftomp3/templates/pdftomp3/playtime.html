@@ -1,0 +1,204 @@
+{% extends 'pdftomp3/layout.html' %}
+{% load static %}
+{% block title %}
+<title>Play</title>
+{% endblock title %}
+{% block style %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+<style>
+    .main-content {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 20px;
+    }
+    .content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+    }
+    .content h2 {
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .content .now-playing {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+    .content img {
+        width: 300px;
+        height: 300px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .controls {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+    }
+    .controls button {
+        background-color: #4caf50;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        font-size: 18px;
+        border-radius: 50%;
+        margin: 0 10px;
+    }
+    .controls .volume {
+        display: flex;
+        align-items: center;
+    }
+    .controls .volume input {
+        margin-left: 10px;
+    }
+    .playlist {
+        margin-left: 20px;
+        width: 300px;
+    }
+    .playlist ul {
+        list-style: none;
+        padding: 0;
+    }
+    .playlist ul li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    .playlist ul li img {
+        width: 40px;
+        height: 40px;
+        border-radius: 5px;
+        margin-right: 10px;
+    }
+    .playlist ul li span {
+        font-size: 14px;
+        color: #666;
+    }
+    .playtime {
+        width: 100%;
+        max-width: 600px;
+        margin-top: 20px;
+    }
+    .playtime span {
+        font-size: 14px;
+        color: #666;
+    }
+    #playbackRange {
+        width: 100%;
+    }
+    
+</style>
+{% endblock style %}
+{% block main %}
+
+<div class="main-content">
+    <div class="content">
+        <h2>Play music</h2>
+        <div class="now-playing">Now playing </div>
+        <img alt="Now playing image" height="300" src="https://picsum.photos/id/{{mp3file.id}}/200/300" width="300"/>
+        
+        <!-- Audio Element with a sample audio file -->
+        <audio id="audioPlayer" src="/media/{{mp3file.mp3_file}}" preload="metadata"></audio>
+        
+        <div class="playtime d-flex align-items-center">
+            <span id="currentTime">0:00</span>
+            <input class="mx-2" min="0" type="range" value="0" id="playbackRange"/>
+        </div>
+        <div class="controls">
+            <button id="prevBtn">
+                <i class="fas fa-step-backward"></i>
+            </button>
+            <button id="playBtn">
+                <i class="fas fa-play"></i>
+            </button>
+            <button id="nextBtn">
+                <i class="fas fa-step-forward"></i>
+            </button>
+            <div class="volume d-flex align-items-center ms-3">
+                <i class="fas fa-volume-down"></i>
+                <input class="ms-2" max="100" min="0" type="range" id="volumeRange" value="50"/>
+            </div>
+        </div>
+    </div>
+
+    <div class="playlist">
+        <ul>
+ <li>
+                <img src="https://storage.googleapis.com/a1aa/image/tjOiBQqOLJ5QHByT9Y423GqXxzG6S8A35jMGOTdHd8PJffBUA.jpg" alt="Song Cover"/>
+                <span>SoundHelix Song 1</span>
+            </li>
+            <li>
+                <img src="https://storage.googleapis.com/a1aa/image/tjOiBQqOLJ5QHByT9Y423GqXxzG6S8A35jMGOTdHd8PJffBUA.jpg" alt="Song Cover"/>
+                <span>SoundHelix Song 2</span>
+            </li>
+            <li>
+                <img src="https://storage.googleapis.com/a1aa/image/tjOiBQqOLJ5QHByT9Y423GqXxzG6S8A35jMGOTdHd8PJffBUA.jpg" alt="Song Cover"/>
+                <span>SoundHelix Song 3</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+{% endblock main %}
+{% block script %}
+<script>
+    const audioPlayer = document.getElementById('audioPlayer');
+    const playBtn = document.getElementById('playBtn');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const volumeRange = document.getElementById('volumeRange');
+    const playbackRange = document.getElementById('playbackRange');
+    const currentTime = document.getElementById('currentTime');
+
+    // Wait for the audio metadata to load
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        console.log("audio duration:", audioPlayer.duration); // This should now log the correct duration
+        playbackRange.max = audioPlayer.duration; // Set the max value of the playback range
+    });
+
+    playBtn.addEventListener('click', () => {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+            playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        } else {
+            audioPlayer.pause();
+            playBtn.innerHTML = '<i class="fas fa-play"></i>';
+        }
+    });
+
+    volumeRange.addEventListener('input', () => {
+        audioPlayer.volume = volumeRange.value / 100;
+    });
+
+    playbackRange.addEventListener('input', () => {
+        const seekTime = playbackRange.value ;
+        audioPlayer.currentTime = seekTime;
+    });
+
+    audioPlayer.addEventListener('timeupdate', () => {
+        const currentMinutes = Math.floor(audioPlayer.currentTime / 60);
+        const currentSeconds = Math.floor(audioPlayer.currentTime % 60);
+        currentTime.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' : ''}${currentSeconds}`;
+        playbackRange.value = audioPlayer.currentTime; // Update the playback range
+    });
+
+    // Add functionality for next and previous buttons
+    nextBtn.addEventListener('click', () => {
+        // Logic to play the next song in the playlist
+        // For example, you can change the audio source and play it
+    });
+
+    prevBtn.addEventListener('click', () => {
+        // Logic to play the previous song in the playlist
+        // For example, you can change the audio source and play it
+    });
+
+
+</script>
+{% endblock script %}

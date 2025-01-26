@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading Page</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <style>
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+    </style>
+    <script>
+        function checkProgress() {
+            fetch("/progress")
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === "SUCCESS") {
+                        // Redirect to the success page
+                        window.location.href = data.redirect_url;
+                    } else if (data.status === "PENDING" || data.status === "STARTED") {
+                        // Retry after 2 seconds
+                        setTimeout(checkProgress, 2000);
+                    } else {
+                        console.error("Unexpected status:", data.status);
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+        }
+
+        // Start polling when the page loads
+        window.onload = checkProgress;
+    </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gradient-to-r from-blue-400 to-purple-500">
+    <div class="text-center">
+        <div class="flex space-x-2">
+            <div class="w-6 h-6 bg-white rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+            <div class="w-6 h-6 bg-white rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+            <div class="w-6 h-6 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+            <div class="w-6 h-6 bg-white rounded-full animate-bounce" style="animation-delay: 0.3s;"></div>
+        </div>
+        <div class="mt-4 text-xl text-white">Converting...</div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{% extends 'pdftomp3/layout.html' %}
+{% block style %}
+<style>
+  .container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .preview {
+    margin:auto;
+  }
+</style>
+{% endblock style %}
+{% block main %}
+  <h2 class="text-center">Preview PDF: {{ pdf_file.title }}</h2>
+  <div class="container">
+    <iframe class="preview" src="{{ pdf_file.pdf_file.url }}" width="80%" height="700px" style="border: none;"></iframe>
+  </div>
+  <div class="container d-flex justify-content-between mt-5 mb-5">
+    <a href="{% url 'file_list' %}"><button class="btn btn-danger px-5 rounded-pill">Back</button></a>
+    <a href="{% url 'voice_type' pdf_file.id %}"><button  class="btn btn-success px-5 rounded-pill">Convert to MP3</button></a>
+  </div>
+  
+  
+{% endblock main%}
+

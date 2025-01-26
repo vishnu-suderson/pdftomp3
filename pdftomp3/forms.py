@@ -1,0 +1,43 @@
+from django import forms
+from .models import PDFFile
+from django.contrib.auth.models import User
+from .models import Profile
+
+class Registrationform(forms.ModelForm):
+    first_name=forms.CharField(label="first_name",max_length=225, required=True)
+    last_name=forms.CharField(label="first_name",max_length=225, required=True)
+    username=forms.CharField(label='username' ,max_length=112 ,required=True)
+    email=forms.EmailField(label='email' ,required=True)
+    password=forms.CharField(label='password' ,max_length=112, required=True)
+
+    class Meta:
+        model=User
+        fields=['first_name','last_name','username','email','password']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])  # Hash the password
+        if commit:
+            user.save()
+            Profile.objects.create(
+                user=user,
+                profile_pic='profile_pics/default.jpg',
+                name=self.cleaned_data['first_name'] + ' ' + self.cleaned_data['last_name'],
+                username=self.cleaned_data['username'],
+                email=self.cleaned_data['email'],
+                passwords=self.cleaned_data['password'],
+                mobile_phone="xxxx",  # You can modify this to accept mobile phone from the form if needed
+                POSITION="xxxx"  # Default value, modify as needed
+            )
+
+class PDFUploadForm(forms.ModelForm):
+    class Meta:
+        model = PDFFile
+        fields = ['pdf_file']
+    
+    def clean_pdf_file(self):
+        pdf = self.cleaned_data.get('pdf_file')
+        if pdf and not pdf.name.endswith('.pdf'):
+            raise forms.ValidationError("Only PDF files are allowed.")
+        return pdf
+

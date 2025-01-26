@@ -1,0 +1,116 @@
+{% extends 'pdftomp3/layout.html' %}
+{% load static %}
+{% block title %}
+<title>
+Select Voice Type
+</title>
+{% endblock title %}
+
+{% block style %}
+
+<style>
+    .container h2 {
+        font-size: 36px;
+        margin-bottom: 40px;
+    }
+    .options {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    .option {
+        width: 441px;
+        height: 454px;
+        background: linear-gradient(to bottom, #a8e063, #56ab2f);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.3s;
+        position: relative;
+    }
+    .option:hover {
+        transform: scale(1.05);
+    }
+    .option:nth-child(1){
+        background: url("{% static './male.png' %}");
+    }
+    .option:nth-child(2){
+        background: url("{% static './female.png' %}");
+    }
+
+    .option p {
+        font-size: 24px;
+        color: #fff;
+        margin: 0;
+    }
+    .option input[type="radio"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .option.selected {
+        border: 10px solid #0000ff;
+        background-color: #0000ff;
+    }
+    .button {
+        width: 100px;
+        height: 40px;
+        border: none;
+        border-radius: 20px;
+        font-size: 18px;
+        color: #fff;
+        cursor: pointer;
+    }
+    .button.back {
+        background-color: #ff4b4b;
+    }
+    .button.next {
+        background-color: #4caf50;
+    }
+</style>
+{% endblock style %}
+{% block main %}
+<h3 class="text-center pb-3">Select Voice Type</h3>
+  <form method="post">
+    {% csrf_token %}
+    <div class="container">
+        <div class="options d-flex justify-content-around">
+         <label class="option">
+          <input checked="checked" name="voiceType" type="radio" value="en-US-GuyNeural"/>
+
+         </label>
+         <label class="option selected">
+          <input name="voiceType" type="radio" value="en-US-JennyNeural"/>
+         </label>
+        </div>
+        <div class="buttons d-flex justify-content-between w-full mt-5 mb-5">
+         <button class="button back">
+          Back
+         </button>
+         <button  type="submit" class="button next">
+          Next
+         </button>
+        </div>
+       </div>
+  </form>
+
+{% endblock main%}
+{% block script %}
+<script>
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => {
+        option.addEventListener('click', () => {
+            options.forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+        });
+    });
+</script>
+{% endblock script %}
+

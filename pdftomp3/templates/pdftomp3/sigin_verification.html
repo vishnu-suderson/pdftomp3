@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify</title>
+    <script>
+   document.addEventListener("DOMContentLoaded", () => {
+    const inputs = ["otp1", "otp2", "otp3", "otp4"].map(id => document.getElementById(id));
+    
+    inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+            if (input.value.length === 1 && index < inputs.length - 1) {
+                inputs[index + 1].focus();
+            }
+        });
+    });
+});
+
+</script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: #fff;
+        }
+        .otp-container {
+            background: #fff;
+            color: #333;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .otp-container h2 {
+            margin-bottom: 20px;
+        }
+        .otp-container input {
+            padding: 10px;
+            width: 60px;
+            font-size: 1.5rem;
+            text-align: center;
+            margin: 0 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .otp-container button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #2575fc;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        .otp-container button:hover {
+            background-color: #1a5dbb;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="otp-container">
+        <h2>Verify OTP</h2>
+        <p>Please enter the OTP sent to your email.</p>
+        <form method="POST">
+            {% csrf_token %}
+            <!-- Input fields for OTP -->
+            <input type="text" name="otp1" id="otp1" pattern="[0-9]{1}" maxlength="1" required>
+            <input type="text" name="otp2" id="otp2" pattern="[0-9]{1}" maxlength="1" required>
+            <input type="text" name="otp3" id="otp3" pattern="[0-9]{1}" maxlength="1" required>
+            <input type="text" name="otp4" id="otp4" pattern="[0-9]{1}" maxlength="1" required>
+            <br>
+            {% if error %}
+                <p class="error">{{ error }}</p>
+            {% endif %}
+            <button type="submit">Verify OTP</button>
+        </form>
+    </div>
+</body>
+</html>

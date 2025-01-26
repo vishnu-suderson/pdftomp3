@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>PDF to MP3</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f2f5;
+            font-family: 'Times New Roman', Times, serif;
+        }
+        .container {
+            background-color: #a8e6cf;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+        .container h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .container h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .container p {
+            font-size: 14px;
+            margin-bottom: 30px;
+            color: #666;
+        }
+        .container form {
+            display: flex;
+            justify-content: center;
+        }
+        .container button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .container button:hover {
+            background-color: #002244;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PDF TO MP3</h1>
+        <h2>Logout Account</h2>
+        <p>Enter your email address to confirm logout. Ensure you write a valid address like johndoe@example.com</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">CONFIRM</button>
+        </form>
+    </div>
+</body>
+</html>

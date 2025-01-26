@@ -1,0 +1,89 @@
+{% extends 'pdftomp3/layout.html' %}
+
+{% block main %}
+<div class="d-flex justify-content-end align-items-center mb-3">
+  <form id="searchForm" class="d-flex" onsubmit="return false;">
+    <input 
+      type="search" 
+      name="search" 
+      id="searchInput" 
+      class="form-control form-control-sm me-2" 
+      placeholder="Search audio files..." 
+    >
+    <button type="button" class="btn btn-primary btn-sm" id="searchBtn">Search</button>
+  </form>
+</div>
+
+<hr>
+
+<!-- Audio Files Section -->
+<div class="mx-3">
+  <h3 class="h5 mb-3">Audio Files</h3>
+  <div id="audioFiles" class="row g-4">
+    {% for mp3 in mp3_files %}
+      <div class="col-md-3 col-sm-6">
+        <div class="audio-card">
+          <a href="{% url 'playtime' id=mp3.id %}" class="text-decoration-none">
+            <div class="audio-thumbnail" 
+                 style="background: url('https://picsum.photos/id/{{mp3.id}}/200/300'); background-size: cover; background-position: center; height: 200px;">
+            </div>
+            <p class="small text-danger mb-0 mt-2">{{ mp3.title }}</p>
+            <p class="small fw-medium mb-0">{{ mp3.date }}</p>
+          </a>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Pagination -->
+<div class="d-flex justify-content-between m-3">
+  {% if mp3_files.has_previous %}
+    <a href="?search={{ request.GET.search }}&page={{ mp3_files.previous_page_number }}" class="btn btn-outline-primary btn-sm px-3">Previous</a>
+  {% else %}
+    <button class="btn btn-outline-secondary btn-sm px-3" disabled>Previous</button>
+  {% endif %}
+
+  <span>Page {{ mp3_files.number }} of {{ mp3_files.paginator.num_pages }}</span>
+
+  {% if mp3_files.has_next %}
+    <a href="?search={{ request.GET.search }}&page={{ mp3_files.next_page_number }}" class="btn btn-outline-primary btn-sm px-4">Next</a>
+  {% else %}
+    <button class="btn btn-outline-secondary btn-sm px-4" disabled>Next</button>
+  {% endif %}
+</div>
+{% endblock main %}
+
+{% block script %}
+<script>
+  // Get references to elements
+  const searchInput = document.getElementById("searchInput");
+  const searchButton = document.getElementById("searchBtn");
+  const audioFilesDiv = document.getElementById("audioFiles");
+
+  // Function to fetch and update audio files
+  function fetchAudioFiles(query) {
+    fetch(`/mp3files/?search=${query}`)
+      .then((response) => response.text())
+      .then((data) => {
+        const parser = new DOMParser();
+        const newContent = parser.parseFromString(data, "text/html");
+        const updatedAudioFiles = newContent.querySelector("#audioFiles").innerHTML;
+        audioFilesDiv.innerHTML = updatedAudioFiles;
+      })
+      .catch((error) => console.error("Error fetching audio files:", error));
+  }
+
+  // Trigger search on input event
+  searchInput.addEventListener("input", function () {
+    const query = this.value;
+    fetchAudioFiles(query);
+  });
+
+  // Trigger search on button click
+  searchButton.addEventListener("click", function () {
+    const query = searchInput.value;
+    fetchAudioFiles(query);
+  });
+</script>
+{% endblock script %}
