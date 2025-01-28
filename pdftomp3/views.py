@@ -59,13 +59,13 @@ def signin(request):
             otp = random.randint(1000, 9999)
 
             # Send OTP via email
-           # send_mail(
-            #        'Your OTP Code',
-             #       f'Your OTP code is: {otp}',
-              #      'your_email@gmail.com',  # Sender's email (matches EMAIL_HOST_USER in settings.py)
-               #     [form.cleaned_data['email']],       # Receiver's email
-                #    fail_silently=False,
-                #)
+            send_mail(
+                    'Your OTP Code',
+                   f'Your OTP code is: {otp}',
+                   'your_email@gmail.com',  # Sender's email (matches EMAIL_HOST_USER in settings.py)
+                    [form.cleaned_data['email']],       # Receiver's email
+                    fail_silently=False,
+                )
             print(form.cleaned_data)
             request.session['form_data'] = form.cleaned_data
             # Save the OTP to session or database for verification
