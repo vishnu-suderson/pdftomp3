@@ -40,4 +40,18 @@ class PDFUploadForm(forms.ModelForm):
         if pdf and not pdf.name.endswith('.pdf'):
             raise forms.ValidationError("Only PDF files are allowed.")
         return pdf
+    
+
+
+class ProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['profile_pic', 'name', 'username', 'mobile_phone', 'email', 'POSITION']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your full name'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your username'}),
+            'mobile_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your mobile number'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}),
+            'POSITION': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your position'}),
+        }
 

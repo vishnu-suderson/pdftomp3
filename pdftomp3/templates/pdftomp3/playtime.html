@@ -56,8 +56,10 @@
         margin-left: 10px;
     }
     .playlist {
+        height: 80vh;
+        overflow: scroll;
         margin-left: 20px;
-        width: 300px;
+        width: 400px;
     }
     .playlist ul {
         list-style: none;
@@ -66,7 +68,6 @@
     .playlist ul li {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         padding: 10px 0;
         border-bottom: 1px solid #e0e0e0;
     }
@@ -77,6 +78,7 @@
         margin-right: 10px;
     }
     .playlist ul li span {
+        text-align: center;
         font-size: 14px;
         color: #666;
     }
@@ -96,20 +98,22 @@
 </style>
 {% endblock style %}
 {% block main %}
-
 <div class="main-content">
     <div class="content">
-        <h2>Play music</h2>
-        <div class="now-playing">Now playing </div>
-        <img alt="Now playing image" height="300" src="https://picsum.photos/id/{{mp3file.id}}/200/300" width="300"/>
-        
-        <!-- Audio Element with a sample audio file -->
-        <audio id="audioPlayer" src="/media/{{mp3file.mp3_file}}" preload="metadata"></audio>
-        
+        <h2>Play Music</h2>
+        <div class="now-playing">Now playing: <span id="current-song-title">{{ mp3file.title }}</span></div>
+        <img id="current-song-image" src='https://picsum.photos/id/{{mp3file.id}}/200/300' width="300" height="300" />
+
+        <audio id="audioPlayer" preload="metadata">
+            <source id="audioSource" src="{{ mp3file.mp3_file.url }}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+
         <div class="playtime d-flex align-items-center">
             <span id="currentTime">0:00</span>
             <input class="mx-2" min="0" type="range" value="0" id="playbackRange"/>
         </div>
+        
         <div class="controls">
             <button id="prevBtn">
                 <i class="fas fa-step-backward"></i>
@@ -128,24 +132,20 @@
     </div>
 
     <div class="playlist">
-        <ul>
- <li>
-                <img src="https://storage.googleapis.com/a1aa/image/tjOiBQqOLJ5QHByT9Y423GqXxzG6S8A35jMGOTdHd8PJffBUA.jpg" alt="Song Cover"/>
-                <span>SoundHelix Song 1</span>
+        <ul id="playlist">
+            {% for song in mp3fileall %}
+            <li data-id="{{ song.id }}" data-src="{{ song.mp3_file.url }}" data-title="{{ song.title }}" data-image="{{ song.cover_image.url }}"
+                {% if song.id == mp3file.id %}class="active-song"{% endif %}>
+                <img src='https://picsum.photos/id/{{song.id}}/200/300' alt="Song Cover"/>
+                <span>{{ song.title }}</span>
             </li>
-            <li>
-                <img src="https://storage.googleapis.com/a1aa/image/tjOiBQqOLJ5QHByT9Y423GqXxzG6S8A35jMGOTdHd8PJffBUA.jpg" alt="Song Cover"/>
-                <span>SoundHelix Song 2</span>
-            </li>
-            <li>
-                <img src="https://storage.googleapis.com/a1aa/image/tjOiBQqOLJ5QHByT9Y423GqXxzG6S8A35jMGOTdHd8PJffBUA.jpg" alt="Song Cover"/>
-                <span>SoundHelix Song 3</span>
-            </li>
+            {% endfor %}
         </ul>
     </div>
 </div>
-
 {% endblock main %}
+
+
 {% block script %}
 <script>
     const audioPlayer = document.getElementById('audioPlayer');
@@ -155,12 +155,38 @@
     const volumeRange = document.getElementById('volumeRange');
     const playbackRange = document.getElementById('playbackRange');
     const currentTime = document.getElementById('currentTime');
+    const playlist = document.getElementById('playlist');
+    const audioSource = document.getElementById('audioSource');
+    const currentSongTitle = document.getElementById('current-song-title');
+    const currentSongImage = document.getElementById('current-song-image');
 
-    // Wait for the audio metadata to load
-    audioPlayer.addEventListener('loadedmetadata', () => {
-        console.log("audio duration:", audioPlayer.duration); // This should now log the correct duration
-        playbackRange.max = audioPlayer.duration; // Set the max value of the playback range
-    });
+    let songs = Array.from(playlist.getElementsByTagName('li'));
+    let currentIndex = parseInt("{{ current_index }}") || 0;  // Ensure it's a valid number
+    let totalSongs = parseInt("{{ total_songs }}") || 0;  // Default to 0 if undefined
+    function loadSong(index) {
+        if (index < 0 || index >= totalSongs) return;
+        
+        let song = songs[index];
+        let newSrc = song.dataset.src;
+        let newTitle = song.dataset.title;
+        let newImage = song.dataset.image;
+        let newId = song.dataset.id;
+
+        audioSource.src = newSrc;
+        currentSongTitle.textContent = newTitle;
+        currentSongImage.src = newImage;
+        audioPlayer.load();
+        audioPlayer.play();
+        playBtn.innerHTML = '<i class="fas fa-pause"></i>';
+
+        songs.forEach(s => s.classList.remove('active-song'));
+        song.classList.add('active-song');
+
+        currentIndex = index;
+
+        // Update the URL without reloading the page
+        window.history.pushState(null, "", `/playtime/${newId}/`);
+    }
 
     playBtn.addEventListener('click', () => {
         if (audioPlayer.paused) {
@@ -177,28 +203,37 @@
     });
 
     playbackRange.addEventListener('input', () => {
-        const seekTime = playbackRange.value ;
-        audioPlayer.currentTime = seekTime;
+        audioPlayer.currentTime = playbackRange.value;
     });
 
     audioPlayer.addEventListener('timeupdate', () => {
-        const currentMinutes = Math.floor(audioPlayer.currentTime / 60);
-        const currentSeconds = Math.floor(audioPlayer.currentTime % 60);
+        let currentMinutes = Math.floor(audioPlayer.currentTime / 60);
+        let currentSeconds = Math.floor(audioPlayer.currentTime % 60);
         currentTime.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' : ''}${currentSeconds}`;
-        playbackRange.value = audioPlayer.currentTime; // Update the playback range
+        playbackRange.value = audioPlayer.currentTime;
     });
 
-    // Add functionality for next and previous buttons
     nextBtn.addEventListener('click', () => {
-        // Logic to play the next song in the playlist
-        // For example, you can change the audio source and play it
+        if (currentIndex < totalSongs - 1) {
+            loadSong(currentIndex + 1);
+        }
     });
 
     prevBtn.addEventListener('click', () => {
-        // Logic to play the previous song in the playlist
-        // For example, you can change the audio source and play it
+        if (currentIndex > 0) {
+            loadSong(currentIndex - 1);
+        }
     });
 
+    songs.forEach((song, index) => {
+        song.addEventListener('click', () => {
+            loadSong(index);
+        });
+    });
 
+    // Highlight the initially playing song
+    if (currentIndex !== -1) {
+        songs[currentIndex].classList.add('active-song');
+    }
 </script>
 {% endblock script %}

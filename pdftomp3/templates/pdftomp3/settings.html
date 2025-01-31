@@ -1,107 +1,85 @@
-<html>
- <head>
-  <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" rel="stylesheet"/>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
-  <style>
-   body {
-            background-color: #8DA2C0;
-        }
-        .navbar {
-            background-color: #B0C4DE;
-        }
-        .navbar-brand img {
-            height: 40px;
-        }
-        .navbar-text {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        .list-group-item {
-            background-color: #8DA2C0;
-            border: none;
-            border-bottom: 2px solid #E0E0E0;
-            font-size: 1.25rem;
-            font-weight: bold;
-            color: #000;
-        }
-        .list-group-item i {
-            float: right;
-            font-size: 1.5rem;
-        }
-        .profile {
-            display: flex;
-            align-items: center;
-        }
-        .profile img {
-            border-radius: 50%;
-            height: 40px;
-            margin-right: 10px;
-        }
-        .profile-info {
-            display: flex;
-            flex-direction: column;
-        }
-        .profile-info span {
-            font-size: 0.75rem;
-        }
-  </style>
- </head>
- <body>
-  <nav class="navbar navbar-expand-lg navbar-light">
-   <div class="container-fluid">
-    <a class="navbar-brand" href="#">
-     <img alt="Logo of PDF to MP3" height="40" src="https://placehold.co/40x40" width="40"/>
-     PDF TO MP3
-    </a>
-    <div class="navbar-text mx-auto">
-     Setting
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - PDFtoMP3</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+<body class="{% if request.session.dark_mode %}dark-mode{% endif %}">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-10">
+                <div class="card p-4 shadow-lg rounded-4">
+                    <header class="text-center mb-4">
+                        <h2 class="fw-bold">Settings</h2>
+                        <div class="profile-info d-flex align-items-center gap-3 justify-content-center">
+                            <img src="{{ profile.profile_pic.url }}" alt="Profile Picture" class="rounded-circle border shadow-sm" width="70" height="70">
+                            <div>
+                                <h5 class="mb-0">{{ profile.name }}</h5>
+                                <p class="text-muted mb-0">{{ profile.email }}</p>
+                            </div>
+                        </div>
+                    </header>
+                    <div class="list-group list-group-flush">
+                        <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action py-3">Account & Security</a>
+                        <a href="#" class="list-group-item list-group-item-action py-3">Privacy Settings</a>
+                        <a href="#" class="list-group-item list-group-item-action py-3">Language</a>
+                        <a href="#" class="list-group-item list-group-item-action py-3">About</a>
+                        <a href="{% url 'toggle_dark_mode' %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3">
+                            Toggle Dark Mode
+                            <span class="fw-bold {% if request.session.dark_mode %}text-success{% else %}text-secondary{% endif %}">{% if request.session.dark_mode %}ON{% else %}OFF{% endif %}</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action py-3">Rate Us ⭐</a>
+                        <a href="#" class="list-group-item list-group-item-action py-3">Help & Support</a>
+                        <a href="{% url 'Logout' %}" class="list-group-item list-group-item-action text-danger text-center fw-bold py-3">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="profile">
-     <img alt="Profile picture of Alex Meian" height="40" src="https://placehold.co/40x40" width="40"/>
-     <div class="profile-info">
-      <strong>
-       Alex Meian
-      </strong>
-      <span>
-       Product manager
-      </span>
-     </div>
-    </div>
-   </div>
-  </nav>
-  <div class="container mt-3">
-   <ul class="list-group">
-    <li class="list-group-item">
-     Account and security
-     <i class="fas fa-chevron-right">
-     </i>
-    </li>
-    <li class="list-group-item">
-     Language
-     <i class="fas fa-chevron-right">
-     </i>
-    </li>
-    <li class="list-group-item">
-     About
-     <i class="fas fa-chevron-right">
-     </i>
-    </li>
-    <li class="list-group-item">
-     Privacy Setting
-     <i class="fas fa-chevron-right">
-     </i>
-    </li>
-    <li class="list-group-item">
-     Privacy policy Management
-     <i class="fas fa-chevron-right">
-     </i>
-    </li>
-    <li class="list-group-item">
-     Help and Support
-     <i class="fas fa-chevron-right">
-     </i>
-    </li>
-   </ul>
-  </div>
- </body>
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+            transition: 0.3s;
+        }
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: white;
+        }
+        .card {
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .dark-mode .card {
+            background: #2c2c2c;
+            color: white;
+        }
+        .list-group-item:hover {
+            background: #f0f0f0;
+            transition: 0.3s;
+        }
+        .dark-mode .list-group-item:hover {
+            background: #3a3a3a;
+        }
+        .profile-info img {
+            border: 3px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .col-lg-5 {
+                width: 100%;
+            }
+            .profile-info {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+    </style>
+</body>
 </html>

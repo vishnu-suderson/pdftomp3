@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse, Http404
-from .forms import Registrationform
+from .forms import Registrationform,ProfileUpdateForm
 from django.contrib.auth import authenticate,login as auth,logout
 from django.urls import reverse_lazy
 
@@ -25,7 +25,6 @@ from django.core.mail import send_mail
 from django.utils.timezone import now, timedelta
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.hashers import make_password
 
 
@@ -108,9 +107,9 @@ def sigin_verification(request):
 @login_required
 def dashboard(request):
     profile = Profile.objects.get( user=request.user)
-    pdf=profile.pdfs.all()
-    mp3_files=profile.mp3s.all()
-    return render(request, 'pdftomp3/dashboard.html',{'tab':'Dashboard',"pdf":pdf,"mp3_files":mp3_files})
+    pdf=profile.pdfs.all().order_by('date')[:4] 
+    mp3_files=profile.mp3s.all().order_by('date')[:4] 
+    return render(request, 'pdftomp3/dashboard.html',{'tab':'Dashboard',"pdf":pdf,"mp3_files":mp3_files,"profile":profile})
 
 @login_required
 def single_upload(request):
@@ -139,12 +138,24 @@ def single_upload(request):
 
 
 @login_required
-def playtime(request,id):
+def playtime(request, id):
     print(request.user)
-    profile=Profile.objects.get(user=request.user)
-    mp3all=profile.mp3s.all()
-    mp3=profile.mp3s.get(id=id)
-    return render(request, 'pdftomp3/playtime.html',{'tab':'Play',"mp3fileall":mp3all,"mp3file":mp3})
+    profile = Profile.objects.get(user=request.user)
+    mp3all = profile.mp3s.all()
+    mp3 = get_object_or_404(profile.mp3s, id=id)  # Fetch the currently playing song
+    
+    # Get the index of the current song in the list
+    mp3_list = list(mp3all)
+    current_index = mp3_list.index(mp3) if mp3 in mp3_list else 0
+
+    return render(request, 'pdftomp3/playtime.html', {
+        'tab': 'Play',
+        'mp3fileall': mp3all,
+        'mp3file': mp3,
+        'current_index': current_index,
+        'total_songs': len(mp3_list)
+    })
+
 
 @login_required
 def logout_view(request):
@@ -155,6 +166,36 @@ def logout_view(request):
 
 
 
+@login_required
+def edit_profile(request):
+    profile = Profile.objects.get(user=request.user)
+
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('Profile')  # Redirect to the profile page after saving
+
+    else:
+        form = ProfileUpdateForm(instance=profile)
+
+    return render(request, 'pdftomp3/profile_form.html', {'form': form})
+
+
+@login_required
+def settings_view(request):
+    """ Renders the settings page with user profile details. """
+    user_profile = Profile.objects.get(user=request.user)
+    return render(request, 'pdftomp3/settings.html', {'profile': user_profile})
+
+@login_required
+def toggle_dark_mode(request):
+    """ Handles toggling dark mode (can be implemented with session storage). """
+    if 'dark_mode' in request.session:
+        request.session['dark_mode'] = not request.session['dark_mode']
+    else:
+        request.session['dark_mode'] = True
+    return redirect('settings')
 
 def send_otp(request):
     if request.method == "POST":
