@@ -32,7 +32,8 @@ def convert_pdf_to_mp3_task(voice,pdf_path, title, profile):
     # Set the output MP3 file path
     output_dir = "media/mp3s"  # Ensure this directory exists
     os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
-    output_file = os.path.join(output_dir, f"{title}_{voice}.mp3")
+    types = "male" if voice == "en-US-GuyNeural" else "female"
+    output_file = os.path.join(output_dir, f"{title}_[{types}].mp3")
 
     # Run the conversion task asynchronously
     loop = asyncio.get_event_loop()

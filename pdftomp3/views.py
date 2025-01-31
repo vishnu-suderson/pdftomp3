@@ -2,6 +2,10 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse, Http404
 from .forms import Registrationform,ProfileUpdateForm
 from django.contrib.auth import authenticate,login as auth,logout
+
+from django.utils.timezone import now
+from .models import UserActivity
+
 from django.urls import reverse_lazy
 
 from django.http import JsonResponse
@@ -31,6 +35,8 @@ from django.contrib.auth.hashers import make_password
 from django.contrib import messages
 from django.utils.timezone import now
 
+from django.db import models
+
 # Create your views here.
 def index(request):
     return render(request, 'pdftomp3/index.html')
@@ -42,6 +48,7 @@ def login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth(request,user)
+            UserActivity.objects.create(user=user, start_time=now())
             return redirect(reverse_lazy("Dashboard"))
     return render(request,'pdftomp3/login.html')
 
@@ -109,7 +116,21 @@ def dashboard(request):
     profile = Profile.objects.get( user=request.user)
     pdf=profile.pdfs.all().order_by('date')[:4] 
     mp3_files=profile.mp3s.all().order_by('date')[:4] 
-    return render(request, 'pdftomp3/dashboard.html',{'tab':'Dashboard',"pdf":pdf,"mp3_files":mp3_files,"profile":profile})
+    total_pdfs = profile.pdfs.count()
+    total_mp3s = profile.mp3s.count()
+    total_files = total_pdfs + total_mp3s
+    total_time = UserActivity.objects.aggregate(
+     total_time=models.Sum(models.F('end_time') - models.F('start_time'))
+    )['total_time']
+
+    # Convert to hours and minutes
+    total_hours = total_time.total_seconds() // 3600 if total_time else 0
+    total_minutes = (total_time.total_seconds() % 3600) // 60 if total_time else 0
+    return render(request, 'pdftomp3/dashboard.html',{'tab':'Dashboard',"pdf":pdf,"mp3_files":mp3_files,"profile":profile, 'total_files': total_files,
+        'total_mp3s': total_mp3s,
+        'total_pdfs': total_pdfs,
+        'total_hours': int(total_hours),
+        'total_minutes': int(total_minutes),})
 
 @login_required
 def single_upload(request):
@@ -160,6 +181,7 @@ def playtime(request, id):
 @login_required
 def logout_view(request):
     if request.method=="POST":
+        UserActivity.objects.create(user=request.user, end_time=now() )
         logout(request)
         return redirect(reverse_lazy("index"))
     return render(request,'pdftomp3/logout.html',{'tab':'logout'})
@@ -179,14 +201,14 @@ def edit_profile(request):
     else:
         form = ProfileUpdateForm(instance=profile)
 
-    return render(request, 'pdftomp3/profile_form.html', {'form': form})
+    return render(request, 'pdftomp3/profile_form.html', {'form': form,"tab":"Users"})
 
 
 @login_required
 def settings_view(request):
     """ Renders the settings page with user profile details. """
     user_profile = Profile.objects.get(user=request.user)
-    return render(request, 'pdftomp3/settings.html', {'profile': user_profile})
+    return render(request, 'pdftomp3/settings.html', {'profile': user_profile,"tab":"Menu"})
 
 @login_required
 def toggle_dark_mode(request):
@@ -284,7 +306,7 @@ def reset_password(request):
 
 def profile(request):
     profile = Profile.objects.get(user=request.user)
-    return render(request,'pdftomp3/Profile.html',{"profile":profile})
+    return render(request,'pdftomp3/Profile.html',{"profile":profile,"tab":"Users"})
     
 
 

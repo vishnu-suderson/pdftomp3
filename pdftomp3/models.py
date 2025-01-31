@@ -29,3 +29,18 @@ class MP3File(models.Model):
     user = models.ForeignKey(Profile, on_delete=models.CASCADE,related_name="mp3s")
     def __str__(self):
         return self.title
+
+
+from django.db import models
+from django.contrib.auth.models import User
+from datetime import timedelta
+
+class UserActivity(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    start_time = models.DateTimeField(auto_now_add=True)
+    end_time = models.DateTimeField(null=True, blank=True)
+
+    def duration(self):
+        if self.end_time:
+            return self.end_time - self.start_time
+        return timedelta(0)  # No time spent if the session is still ongoing

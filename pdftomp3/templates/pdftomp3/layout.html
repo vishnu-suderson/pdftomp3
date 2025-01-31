@@ -43,17 +43,16 @@
                     </div>
                 </div>
             </nav>
-    
             <!-- Page Content -->
-            <div id="content">
+            <div id="content" >
                 <!-- Header -->
-                <header class="bg-header border-bottom p-3">
+                <header class="bg-header border-bottom p-3" >
                     <div class="d-flex justify-content-between align-items-center">
                         <button id="sidebarToggle" class="btn d-flex align-items-center gap-2">
                             <i class="bi bi-file-music text-success fs-4"></i>
                             <span class="fw-medium">PDF TO MP3</span>
                         </button>
-                        <div class="d-flex align-items-center gap-3">
+                        <div class=" {% if tab == 'Menu' or tab == 'Users' %}d-none{% else %}d-flex align-items-center gap-3{% endif %}">
                             <img src="{{ profile.profile_pic.url }}" 
                                  alt="Profile" class="rounded-circle" width="32" height="32">
                             <div>
