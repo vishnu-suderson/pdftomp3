@@ -37,7 +37,7 @@
                             <i class="bi bi-moon"></i> Dark Mode
                         </button>
                         <a href="{% url 'file_list' %}" style="text-decoration: none;"><button class="{% if tab == 'Files' %}btn btn-outline-light w-100 mb-2{% else %}nav-link{% endif %}"><i class="bi bi-upload"></i> Files</button></a>
-                        <a href="{% url 'Profile' %}" style="text-decoration: none;"><button class="{% if tab == 'Users' %}btn btn-outline-light w-100 mb-2{% else %}nav-link{% endif %}"><i class="bi bi-people"></i> Users</button></a>
+                        <a href="{% url 'Profile' %}" style="text-decoration: none;"><button class="{% if tab == 'Users' %}btn btn-outline-light w-100 mb-2{% else %}nav-link{% endif %}"><i class="bi bi-people"></i> User</button></a>
                         <a href="{% url 'settings' %}" style="text-decoration: none;"><button class="{% if tab == 'Menu' %}btn btn-outline-light w-100 mb-2{% else %}nav-link{% endif %}"><i class="bi bi-gear"></i> Menu settings</button></a>
                         <a href="{% url 'Logout' %}" style="text-decoration: none;"><button class="nav-link"><i class="bi bi-box-arrow-right"></i> Logout</button></a>
                     </div>
