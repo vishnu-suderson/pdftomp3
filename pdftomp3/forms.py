@@ -50,7 +50,7 @@ class ProfileUpdateForm(forms.ModelForm):
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your full name'}),
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your username'}),
-            'mobile_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your mobile number'}),
+            'mobile_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your mobile number','pattern':'[0-9]{10}'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}),
             'POSITION': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your position'}),
         }
