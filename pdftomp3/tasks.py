@@ -40,7 +40,7 @@ def convert_pdf_to_mp3_task(voice,pdf_path, title, profile):
     loop.run_until_complete(pdf_to_mp3(pdf_path, output_file,voice))
 
     user = Profile.objects.get(id=profile)
-    mp3_file = MP3File(mp3_file=f"mp3s/{title}_{voice}.mp3", title=title, user=user)
+    mp3_file = MP3File(mp3_file=f"mp3s/{title}_{types}.mp3", title=title, user=user)
     mp3_file.save()
 
     return {"status": "success","id":mp3_file.id,"user":profile} # Return the instance for further use

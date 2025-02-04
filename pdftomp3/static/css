@@ -270,124 +270,79 @@
 
 
 
-/* Mobile Navbar Styles */
-.mobile-nav {
-    display: none;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    background: var(--sidebar-bg);
-    color: var(--sidebar-text);
-    z-index: 1000;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
 
-.mobile-nav .navbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    height: 60px;
-}
-
-.mobile-nav .hamburger {
-    background: none;
-    border: none;
-    color: inherit;
-    font-size: 24px;
-    padding: 8px;
-    margin-right: 15px;
-}
-
-.mobile-links {
-    display: none;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    background: var(--card-bg);
-    border-top: 1px solid var(--border-color);
-}
-
-.mobile-links.active {
-    display: block;
-}
-
-.mobile-links li {
-    border-bottom: 1px solid var(--border-color);
-}
-
-.mobile-links .nav-link {
-    color: var(--text-primary);
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    text-decoration: none;
-}
-
-.mobile-links .nav-link i {
-    width: 24px;
-    text-align: center;
-}
-
-/* Responsive Behavior */
-@media (max-width: 768px) {
-    /* Mobile */
-    .sidebar {
-        display: none;
-    }
-
-    header{
-        display: none;
-    }
-    
-    .mobile-nav {
-        display: block;
-    }
-    
-    #content {
-        margin-top: 0px;
-    }
-    
+    /* Responsive Layout */
+@media (max-width: 992px) {
     .wrapper {
         flex-direction: column;
     }
-}
 
-@media (min-width: 769px) and (max-width: 1024px) {
-    /* Tablet */
+    /* Sidebar: Initially hidden on mobile */
     .sidebar {
-        display: none;
+        width: 100%;
+        position: fixed;
+        left: -100%;
+        height: 100%;
+        transition: left 0.3s ease-in-out;
+        z-index: 1000;
     }
 
-    header{
-        display: none;
+    .sidebar.show {
+        left: 0;
     }
-    
-    .mobile-nav {
+
+    /* Sidebar Toggle Button */
+    #sidebarToggle {
         display: block;
     }
-    
+
+    /* Hide text in sidebar buttons for small screens */
+    .sidebar .nav-link {
+        text-align: center;
+        font-size: 0.9rem;
+        padding: 0.5rem;
+    }
+
+    /* Header adjustments */
+    .bg-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+    }
+
+    /* Profile Section */
+    .d-flex.align-items-center.gap-3 {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    /* Content adjustments */
     #content {
-        margin-top: 10px;
+        padding: 10px;
     }
 }
 
-@media (min-width: 1025px) {
-    /* Desktop */
-    .mobile-nav {
-        display: none;
+@media (max-width: 600px) {
+    /* Further reduce sidebar width */
+    .sidebar {
+        width: 80%;
     }
-    
-    .sidebar.hidden {
-        margin-left: -250px;
+
+    /* Adjust button sizes */
+    .nav-link {
+        font-size: 0.85rem;
     }
-    
-    #content {
-        margin-left: 10px;
+
+    /* Reduce padding for small screens */
+    .p-3 {
+        padding: 0.8rem !important;
     }
-    
-    .sidebar.hidden + #content {
-        margin-left: 0;
+
+    /* Resize images */
+    img.rounded-circle {
+        width: 24px;
+        height: 24px;
     }
 }

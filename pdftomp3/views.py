@@ -55,13 +55,10 @@ def login(request):
 
 def signin(request):
     form=Registrationform()
-    print(form)
     if(request.method=="POST"):
         form=Registrationform(request.POST)
         print(form.is_valid())
         if(form.is_valid()):
-            #return redirect(reverse_lazy(""))
-            print(form.cleaned_data['email'])
             otp = random.randint(1000, 9999)
 
             # Send OTP via email
@@ -76,7 +73,6 @@ def signin(request):
             request.session['form_data'] = form.cleaned_data
             # Save the OTP to session or database for verification
             request.session['otp'] = otp
-            print(otp)
             return redirect(reverse_lazy('verify'))
     else:
         print(form.errors) 
