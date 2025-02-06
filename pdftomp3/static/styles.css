@@ -64,6 +64,7 @@
         border-radius: 0.5rem;
     }
     
+    
     /* Audio Card */
     .audio-card {
         position: relative;
@@ -76,6 +77,10 @@
         position: relative;
         overflow: hidden;
     }
+    .active{
+        color: red;
+    }
+    
     
     
     .play-btn {
@@ -338,7 +343,7 @@
     }
 
     header{
-        display: none;
+        visibility: hidden;
     }
     
     .mobile-nav {
@@ -360,8 +365,10 @@
         display: none;
     }
 
+
     header{
-        display: none;
+        visibility: hidden;
+        margin-bottom: 25px;
     }
     
     .mobile-nav {

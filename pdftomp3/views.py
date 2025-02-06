@@ -176,11 +176,12 @@ def playtime(request, id):
 
 @login_required
 def logout_view(request):
+    profile=Profile.objects.get(user=request.user)
     if request.method=="POST":
         UserActivity.objects.create(user=request.user, end_time=now() )
         logout(request)
         return redirect(reverse_lazy("index"))
-    return render(request,'pdftomp3/logout.html',{'tab':'logout'})
+    return render(request,'pdftomp3/logout.html',{"username":profile.username})
 
 
 
@@ -242,6 +243,14 @@ def send_otp(request):
             return render(request, 'pdftomp3/send_otp.html', {'error': 'User Dont have account'})
     return render(request, 'pdftomp3/send_otp.html')
 
+@login_required
+def deleteProfile(request):
+    print(request.method)
+    profile=Profile.objects.get(user=request.user)
+    if request.method=="POST":
+        profile.delete()
+        return redirect('index')
+    return render(request,'pdftomp3/Delete.html',{"profile":profile.name})
 
 
 def verify_otp(request):
@@ -301,8 +310,27 @@ def reset_password(request):
 
 
 def profile(request):
-    profile = Profile.objects.get(user=request.user)
-    return render(request,'pdftomp3/Profile.html',{"profile":profile,"tab":"Users"})
+   profile = get_object_or_404(Profile, user=request.user)
+
+   mp3_files = MP3File.objects.filter(user=profile).order_by('id')
+    # Total number of files converted
+   total_files_converted = profile.pdfs.count()
+
+   total_audio_duration = profile.mp3s.count()
+
+    # Get the most recent conversion
+   last_conversion = mp3_files.first()
+
+   context = {
+        'profile': profile,
+        'total_files_converted': total_files_converted,
+        'total_audio_duration': total_audio_duration,
+        'last_conversion': last_conversion,
+        'mp3_files': mp3_files[:5], 
+         "tab":"Users", # Show last 5 conversions
+    }
+
+   return render(request, 'pdftomp3/profile.html', context)
     
 
 
@@ -324,7 +352,15 @@ def download_mp3(request, mp3_id):
     else:
         raise Http404("MP3 file does not exist.")
 
-
+def delete_mp3(request, mp3_id):
+    if request.method == "DELETE":
+        mp3_file = get_object_or_404(MP3File, id=mp3_id, user=request.user.profile)
+        file_path = mp3_file.mp3_file.path
+        mp3_file.delete()
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False}, status=400)
  
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import PDFFile, Profile
@@ -369,6 +405,7 @@ def audio_files_view(request):
         mp3_files = profile.mp3s.all()
     
     context = {
+        'profile':profile,
         'mp3_files': mp3_files,
         'has_previous': False,  # Replace with pagination logic if applicable
         'has_next': False,      # Replace with pagination logic if applicable

@@ -52,20 +52,17 @@
 
                 <!-- Recent Files Section -->
                  <hr>
-                <div class="mb-4">
-                    <h3 class="h5 mb-3">Recent Files upload</h3>
-                    <div class="row g-3">
-                        <div class="col-2">
-                            <a href="{% url 'single_upload' %}">
-                                <button class="upload-btn">
-                                <span class="display-6 text-muted">+</span>
-                            </button></a>
-                        </div>
-                        {% for i in pdf %}
-                        <div class="col-2" ><a href="{% url 'preview_pdf' pdf_id=i.id %}">
-                            <div class="placeholder-box" style="background: url('https://picsum.photos/id/{{i.id}}/200/300');"></div></a>{{i.title|truncate_words}}</div>
-                        {% endfor %}
+                 <div class="row g-3">
+                    <div class="col-2">
+                        <a href="{% url 'single_upload' %}">
+                            <button class="upload-btn">
+                            <span class="display-6 text-muted">+</span>
+                        </button></a>
                     </div>
+                    {% for i in pdf %}
+                    <div class="col-2" ><a href="{% url 'preview_pdf' pdf_id=i.id %}">
+                        <div class="placeholder-box" style="background: url('https://picsum.photos/id/{{i.id}}/200/300');"></div></a>{{i.title|truncate_words}}</div>
+                    {% endfor %}
                 </div>
                 <hr>
                 <!-- Audio Files Section -->

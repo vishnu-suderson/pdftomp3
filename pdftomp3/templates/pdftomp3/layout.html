@@ -43,7 +43,7 @@
                             <i class="bi bi-file-music"></i> Mp3 Play
                         </button>
                     </a>
-                    <button id="darkModeToggle" class="nav-link">
+                    <button id="DesktopdarkModeToggle" class="nav-link">
                         <i class="bi bi-moon"></i> Dark Mode
                     </button>
                     <a href="{% url 'file_list' %}" style="text-decoration: none;">
@@ -176,9 +176,6 @@
 
         // Close menus when clicking outside
         document.addEventListener('click', (e) => {
-            if (!e.target.closest('.sidebar') && !e.target.closest('#sidebarToggle')) {
-                sidebar.classList.add('hidden');
-            }
             if (!e.target.closest('.mobile-nav')) {
                 mobileLinks.classList.remove('active');
             }
@@ -198,16 +195,16 @@
         });
 
         // Dark Mode Toggle
-        const darkModeToggle = document.getElementById('darkModeToggle');
+        const DesktopdarkModeToggle = document.getElementById('DesktopdarkModeToggle');
         const mobileDarkModeToggle = document.getElementById('mobileDarkModeToggle');
-        const darkModeIcon = darkModeToggle.querySelector('i');
+        const darkModeIcon = DesktopdarkModeToggle.querySelector('i');
         const mobileDarkModeIcon = mobileDarkModeToggle.querySelector('i');
 
         function updateDarkMode(isDark) {
-            const theme = isDark ? 'dark' : 'light';
+            const theme = isDark ? 'dark':'light';
             document.documentElement.setAttribute('data-theme', theme);
             localStorage.setItem('theme', theme);
-            darkModeIcon.className = isDark ? 'bi bi-sun' : 'bi bi-moon';
+            darkModeIcon.className = isDark ?  'bi bi-moon':'bi bi-sun' ;
             mobileDarkModeIcon.className = isDark ? 'bi bi-sun' : 'bi bi-moon';
         }
 
@@ -216,7 +213,7 @@
         updateDarkMode(savedTheme === 'dark');
 
         // Toggle handlers
-        [darkModeToggle, mobileDarkModeToggle].forEach(button => {
+        [DesktopdarkModeToggle, mobileDarkModeToggle].forEach(button => {
             button.addEventListener('click', () => {
                 const currentTheme = document.documentElement.getAttribute('data-theme');
                 updateDarkMode(currentTheme !== 'dark');

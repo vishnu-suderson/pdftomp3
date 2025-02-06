@@ -48,7 +48,7 @@
             font-size: 16px;
         }
         .container button {
-            background-color: #003366;
+            background-color: #dc673c;
             color: white;
             border: none;
             padding: 12px 20px;
@@ -59,7 +59,7 @@
             transition: background 0.3s;
         }
         .container button:hover {
-            background-color: #002244;
+            background-color: #f48d18;
         }
         @media (max-width: 372px) {
             .container {
@@ -80,11 +80,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>Confirm Logout</h1>
-        <p>Are you sure you want to log out?{{username}}</p>
+        <h1>Confirm Delete Account</h1>
+        <p>Are you sure you want to DELETE?{{profile}}</p>
         <form method="post">
             {% csrf_token %}
-            <button type="submit">Yes, Logout</button>
+            <button type="submit">Yes, DELETE</button>
         </form>
     </div>
 </body>

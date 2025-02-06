@@ -1,89 +1,112 @@
 {% extends 'pdftomp3/layout.html' %}
 
 {% block main %}
-<div class="d-flex justify-content-end align-items-center mb-3">
-  <form id="searchForm" class="d-flex" onsubmit="return false;">
-    <input 
-      type="search" 
-      name="search" 
-      id="searchInput" 
-      class="form-control form-control-sm me-2" 
-      placeholder="Search audio files..." 
-    >
-    <button type="button" class="btn btn-primary btn-sm" id="searchBtn">Search</button>
-  </form>
-</div>
+<div class="container">
+  <!-- Search Bar -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="h5">🎵 My MP3 Files</h3>
+    <form id="searchForm" class="d-flex" onsubmit="return false;">
+      <input type="search" name="search" id="searchInput" class="form-control form-control-sm me-2" placeholder="Search...">
+      <button type="button" class="btn btn-primary btn-sm" id="searchBtn">Search</button>
+    </form>
+  </div>
 
-<hr>
+  <hr>
 
-<!-- Audio Files Section -->
-<div class="mx-3">
-  <h3 class="h5 mb-3">Audio Files</h3>
-  <div id="audioFiles" class="row g-4">
+  <!-- MP3 Files Grid -->
+  <div class="row g-4" id="audioFiles">
     {% for mp3 in mp3_files %}
-      <div class="col-md-3 col-sm-6">
-        <div class="audio-card">
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+        <div class="card shadow-sm">
           <a href="{% url 'playtime' id=mp3.id %}" class="text-decoration-none">
-            <div class="audio-thumbnail" 
-                 style="background: url('https://picsum.photos/id/{{mp3.id}}/200/300'); background-size: cover; background-position: center; height: 200px;">
+            <div class="card-img-top audio-thumbnail" 
+                 style="background: url('https://picsum.photos/id/{{mp3.id}}/300/200'); background-size: cover; height: 180px;">
             </div>
-            <p class="small text-danger mb-0 mt-2">{{ mp3.title }}</p>
-            <p class="small fw-medium mb-0">{{ mp3.date }}</p>
           </a>
+          <div class="card-body text-center">
+            <h6 class="text-dark mb-2">{{ mp3.title }}</h6>
+            <p class="small text-muted">{{ mp3.date }}</p>
+
+            <!-- Delete Button -->
+            <button class="btn btn-sm btn-danger delete-btn" data-id="{{ mp3.id }}">
+              🗑 Delete
+            </button>
+          </div>
         </div>
       </div>
     {% endfor %}
   </div>
-</div>
 
-<!-- Pagination -->
-<div class="d-flex justify-content-between m-3">
-  {% if mp3_files.has_previous %}
-    <a href="?search={{ request.GET.search }}&page={{ mp3_files.previous_page_number }}" class="btn btn-outline-primary btn-sm px-3">Previous</a>
-  {% else %}
-    <button class="btn btn-outline-secondary btn-sm px-3" disabled>Previous</button>
-  {% endif %}
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between mt-4">
+    {% if mp3_files.has_previous %}
+      <a href="?search={{ request.GET.search }}&page={{ mp3_files.previous_page_number }}" class="btn btn-outline-primary btn-sm px-3">⬅ Previous</a>
+    {% else %}
+      <button class="btn btn-outline-secondary btn-sm px-3" disabled>⬅ Previous</button>
+    {% endif %}
 
-  <span>Page {{ mp3_files.number }} of {{ mp3_files.paginator.num_pages }}</span>
+    <span>Page {{ mp3_files.number }} of {{ mp3_files.paginator.num_pages }}</span>
 
-  {% if mp3_files.has_next %}
-    <a href="?search={{ request.GET.search }}&page={{ mp3_files.next_page_number }}" class="btn btn-outline-primary btn-sm px-4">Next</a>
-  {% else %}
-    <button class="btn btn-outline-secondary btn-sm px-4" disabled>Next</button>
-  {% endif %}
+    {% if mp3_files.has_next %}
+      <a href="?search={{ request.GET.search }}&page={{ mp3_files.next_page_number }}" class="btn btn-outline-primary btn-sm px-4">Next ➡</a>
+    {% else %}
+      <button class="btn btn-outline-secondary btn-sm px-4" disabled>Next ➡</button>
+    {% endif %}
+  </div>
 </div>
 {% endblock main %}
 
 {% block script %}
 <script>
-  // Get references to elements
-  const searchInput = document.getElementById("searchInput");
-  const searchButton = document.getElementById("searchBtn");
-  const audioFilesDiv = document.getElementById("audioFiles");
+  document.addEventListener("DOMContentLoaded", function () {
+    // Search Functionality
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchBtn");
+    const audioFilesDiv = document.getElementById("audioFiles");
 
-  // Function to fetch and update audio files
-  function fetchAudioFiles(query) {
-    fetch(`/mp3files/?search=${query}`)
-      .then((response) => response.text())
-      .then((data) => {
-        const parser = new DOMParser();
-        const newContent = parser.parseFromString(data, "text/html");
-        const updatedAudioFiles = newContent.querySelector("#audioFiles").innerHTML;
-        audioFilesDiv.innerHTML = updatedAudioFiles;
-      })
-      .catch((error) => console.error("Error fetching audio files:", error));
-  }
+    function fetchAudioFiles(query) {
+      fetch(`/mp3files/?search=${query}`)
+        .then(response => response.text())
+        .then(data => {
+          const parser = new DOMParser();
+          const newContent = parser.parseFromString(data, "text/html");
+          const updatedAudioFiles = newContent.querySelector("#audioFiles").innerHTML;
+          audioFilesDiv.innerHTML = updatedAudioFiles;
+        })
+        .catch(error => console.error("Error fetching audio files:", error));
+    }
 
-  // Trigger search on input event
-  searchInput.addEventListener("input", function () {
-    const query = this.value;
-    fetchAudioFiles(query);
-  });
+    searchInput.addEventListener("input", function () {
+      fetchAudioFiles(this.value);
+    });
 
-  // Trigger search on button click
-  searchButton.addEventListener("click", function () {
-    const query = searchInput.value;
-    fetchAudioFiles(query);
+    searchButton.addEventListener("click", function () {
+      fetchAudioFiles(searchInput.value);
+    });
+
+    // Delete Functionality
+    document.body.addEventListener("click", function (event) {
+      if (event.target.classList.contains("delete-btn")) {
+        const mp3Id = event.target.getAttribute("data-id");
+
+        if (confirm("Are you sure you want to delete this MP3 file?")) {
+          fetch(`/delete_mp3/${mp3Id}/`, {
+            method: "DELETE",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert("MP3 file deleted successfully!");
+              event.target.closest(".col-lg-3").remove();
+            } else {
+              alert("Failed to delete MP3 file.");
+            }
+          })
+          .catch(error => console.error("Error deleting file:", error));
+        }
+      }
+    });
   });
 </script>
 {% endblock script %}
