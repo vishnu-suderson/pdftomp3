@@ -2,7 +2,8 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse, Http404
 from .forms import Registrationform,ProfileUpdateForm
 from django.contrib.auth import authenticate,login as auth,logout
-
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django.utils.timezone import now
 from .models import UserActivity
 
@@ -15,7 +16,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.template.loader import render_to_string
-
+from django.core.mail import EmailMultiAlternatives
 
 import os
 
@@ -37,6 +38,16 @@ from django.utils.timezone import now
 
 from django.db import models
 
+def send_otp_email(receiver_email, otp, username):
+    subject = "Your OTP Code"
+    html_content = render_to_string("pdftomp3/email_template.html", {"otp": otp, "Username": username})  # Render HTML
+    text_content = strip_tags(html_content)  # Fallback plain text
+
+    email = EmailMultiAlternatives(
+        subject, text_content, "your_email@gmail.com", [receiver_email]
+    )
+    email.attach_alternative(html_content, "text/html")  # Attach HTML version
+    email.send()
 # Create your views here.
 def index(request):
     return render(request, 'pdftomp3/index.html')
@@ -60,15 +71,8 @@ def signin(request):
         print(form.is_valid())
         if(form.is_valid()):
             otp = random.randint(1000, 9999)
-
-            # Send OTP via email
-            send_mail(
-                    'Your OTP Code',
-                   f'Your OTP code is: {otp}',
-                   'your_email@gmail.com',  # Sender's email (matches EMAIL_HOST_USER in settings.py)
-                    [form.cleaned_data['email']],       # Receiver's email
-                    fail_silently=False,
-                )
+            
+            send_otp_email(form.cleaned_data['email'],otp,form.cleaned_data['username'])
             print(form.cleaned_data)
             request.session['form_data'] = form.cleaned_data
             # Save the OTP to session or database for verification
@@ -227,13 +231,7 @@ def send_otp(request):
             otp = random.randint(1000, 9999)
 
             # Send OTP via email
-            send_mail(
-                    'Your OTP Code',
-                    f'Your OTP code is: {otp}',
-                    'your_email@gmail.com',  # Sender's email (matches EMAIL_HOST_USER in settings.py)
-                    [receiver_email],       # Receiver's email
-                    fail_silently=False,
-                )
+            send_otp_email(receiver_email,otp,users)
 
             # Save the OTP to session or database for verification
             request.session['otp'] = otp
