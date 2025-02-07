@@ -38,9 +38,9 @@ from django.utils.timezone import now
 
 from django.db import models
 
-def send_otp_email(receiver_email, otp, username):
+def send_otp_email(receiver_email, otp, username,template):
     subject = "Your OTP Code"
-    html_content = render_to_string("pdftomp3/email_template.html", {"otp": otp, "Username": username})  # Render HTML
+    html_content = render_to_string(f"pdftomp3/{template}", {"otp": otp, "Username": username})  # Render HTML
     text_content = strip_tags(html_content)  # Fallback plain text
 
     email = EmailMultiAlternatives(
@@ -72,7 +72,7 @@ def signin(request):
         if(form.is_valid()):
             otp = random.randint(1000, 9999)
             
-            send_otp_email(form.cleaned_data['email'],otp,form.cleaned_data['username'])
+            send_otp_email(form.cleaned_data['email'],otp,form.cleaned_data['username'],"email_template.html")
             print(form.cleaned_data)
             request.session['form_data'] = form.cleaned_data
             # Save the OTP to session or database for verification
@@ -231,7 +231,7 @@ def send_otp(request):
             otp = random.randint(1000, 9999)
 
             # Send OTP via email
-            send_otp_email(receiver_email,otp,users)
+            send_otp_email(receiver_email,otp,users.first().username,"forgot_template.html")
 
             # Save the OTP to session or database for verification
             request.session['otp'] = otp
