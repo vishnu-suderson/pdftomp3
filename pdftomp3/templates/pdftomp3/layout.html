@@ -113,7 +113,7 @@
                 </li>
                 <li>
                     <a href="{% url 'Profile' %}" class="nav-link">
-                        <i class="bi bi-people"></i> User
+                        <i class="bi bi-people"></i> Profile
                     </a>
                 </li>
                 <li>
@@ -137,6 +137,7 @@
                         <i class="bi bi-file-music text-success fs-4"></i>
                         <span class="fw-medium">PDF TO MP3</span>
                     </button>
+                    <a href="{% url 'Profile'%}" style="text-decoration: none;">
                     <div class="{% if tab == 'Menu' or tab == 'Users' %}d-none{% else %}d-flex align-items-center gap-3{% endif %}">
                         <img src="{{ profile.profile_pic.url }}" 
                              alt="Profile" class="rounded-circle" width="32" height="32">
@@ -145,12 +146,14 @@
                             <p class="mb-0 small text-muted">{{profile.POSITION}}</p>
                         </div>
                     </div>
+                  </a>
                 </div>
             </header>
             {% block main%}
             {% endblock main%}
         </div>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tensorflow/4.22.0/tf.min.js" integrity="sha512-pLw8dUVrlqzbcwSDkXmF732uRzE8+VFKaTdoBYCqdvtK3q7wza1sQQQEMJP+jYOER4zU1MusZTT2bRzGVRDGZg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{%static './script.js'%}"></script>

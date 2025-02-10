@@ -1,118 +1,337 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  ...
-</head>
-<body>
-  <div id="content">
-    <h1>Sonya</h1>
-    <p>Give it a try with 'hi/hello', 'how are you', 'joke', 'coin 
-    flip', 'what's your name', 'what time is it', 'bye/stop'</p>
-    <p>You can also try 'play despacito' &#128516;. It will play 
-    on Youtube. Note: the pop-up may be blocked by your browser</p>
-  </div>
-  <button id="startBtn">Start listening</button>
-  <div id="result"></div>
-  <p id="processing"></p>
-  <script >
-    const startBtn = document.getElementById("startBtn");
-const result = document.getElementById("result");
-const processing = document.getElementById("processing");
-const SpeechRecognition = window.SpeechRecognition 
-                          || window.webkitSpeechRecognition;
-let toggleBtn = null;
-if (typeof SpeechRecognition === "undefined") {
-  startBtn.remove();
-  result.innerHTML = "Your browser doesn't support Speech API. Please download latest Chrome version.";
-}
-const recognition = new SpeechRecognition();
-recognition.continuous = true;
-recognition.interimResults = true
-recognition.onresult = event => {
-    const current = event.resultIndex;
-    const recognitionResult = event.results[current];
-    const recognitionText = recognitionResult[0].transcript;
-   
-    if (recognitionResult.isFinal) {
-      processing.innerHTML = "processing ...";
-  
-      const response = process(recognitionText);
-      const p = document.createElement("p");
-      p.innerHTML = `<strong>You said:</strong> ${recognitionText} 
-                     </br><strong>Sonya said:</strong> ${response}`;
-      processing.innerHTML = "";
-      result.appendChild(p);
-      
-      readOutLoud(response);
-    } else {
-      processing.innerHTML = `listening: ${recognitionText}`;
-    }
-  };
-  let listening = false;
-
-toggleBtn = () => {
-  if (listening) {
-    recognition.stop();
-    startBtn.textContent = "Start listening";
-  } else {
-    recognition.start();
-    startBtn.textContent = "Stop listening";
-  }
-  listening = !listening;
-};
-
-startBtn.addEventListener("click", toggleBtn);
-function process(rawText) {
-    let text = rawText.replace(/\s/g, "").replace(/\'/g, "");
-    text = text.toLowerCase();
-    let response = null;
-  
-    if (text.includes("hello") || text.trim() == "hi" || text.includes("hey")) {
-      response = getRandomItemFromArray(hello);
-    } else if (text.includes("your name")) {
-      response = "My name's Sonya.";
-    } else if (text.includes("howareyou")||text.includes("whatsup")) {
-      response = "I'm fine. How about you?";
-    } else if (text.includes("whattimeisit")) {
-      response = new Date().toLocaleTimeString();
-    } else if (text.includes("joke")) {
-      response = getRandomItemFromArray(joke);
-    } else if ((text.includes("play")) && text.includes("despacito")) {
-      response = "Opened it in another tab";
-      window.open("https://www.youtube.com/watch?v=kJQP7kiw5Fk",
-                  "_blank", "noopener");
-    } else if (text.includes("flip") && text.includes("coin")) {
-      response = Math.random() < 0.5 ? 'heads' : 'tails';
-    } else if (text.includes("bye") || text.includes("stop")) {
-      response = "Bye!!";
-      toggleBtn();
-    }
-  
-    if (!response) {
-      window.open(`http://google.com/search?q=${rawText.replace("search", "")}`,
-                  "_blank");
-      return `I found some information for ${rawText}`;
-    }
-  
-    return response;
-  }
-  function getRandomItemFromArray(array) {
-    const randomItem = array[Math.floor(Math.random() * array.length)];
-    return randomItem;
-  };
-  function readOutLoud(message) {
-    const speech = new SpeechSynthesisUtterance();
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Control System</title>
     
-    speech.text = message;
-    speech.volume = 1;
-    speech.rate = 1;
-    speech.pitch = 1.8;
-    speech.voice = voices[3];
-  
-    window.speechSynthesis.speak(speech);
-  }
-  window.speechSynthesis.onvoiceschanged = function() {
-    voices = window.speechSynthesis.getVoices();
-};
-  </script>
+    <style>
+        /* Previous CSS styles remain the same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            transition: all 0.3s ease;
+        }
+
+        /* Theme styles */
+        .light-theme {
+            background-color: #ffffff;
+            color: #333333;
+        }
+
+        .dark-theme {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .voice-control-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 30px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .voice-control-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .voice-control-btn.listening {
+            background-color: #dc3545;
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-display {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            padding: 12px 24px;
+            background-color: rgba(0,0,0,0.8);
+            color: white;
+            border-radius: 15px;
+            font-size: 14px;
+            max-width: 300px;
+            text-align: center;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .command-log {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 5px;
+        }
+
+        .command-item {
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="light-theme">
+    <div class="container">
+        <div id="commandLog" class="command-log"></div>
+    </div>
+
+    <script>
+        class VoiceAssistant {
+            constructor() {
+                this.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.listening = false;
+                this.recognition = null;
+                this.statusDisplay = null;
+                this.commandLog = document.getElementById('commandLog');
+                
+                this.initializeAssistant();
+            }
+
+            initializeAssistant() {
+                if (typeof this.SpeechRecognition === "undefined") {
+                    this.showError("Speech Recognition not supported. Please use Chrome.");
+                    return;
+                }
+
+                // Initialize speech recognition
+                this.recognition = new this.SpeechRecognition();
+                this.recognition.continuous = true;
+                this.recognition.interimResults = true;
+
+                // Setup UI and event listeners
+                this.setupUI();
+                this.setupEventListeners();
+
+                // Load saved theme
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                this.setTheme(savedTheme);
+            }
+
+            setupUI() {
+                // Create status display
+                this.statusDisplay = document.createElement('div');
+                this.statusDisplay.className = 'status-display';
+                this.statusDisplay.textContent = 'Voice Assistant Ready';
+                document.body.appendChild(this.statusDisplay);
+
+                // Create control button
+                const controlButton = document.createElement('button');
+                controlButton.className = 'voice-control-btn';
+                controlButton.textContent = 'Start Voice Control';
+                controlButton.onclick = () => this.toggleListening();
+                document.body.appendChild(controlButton);
+            }
+
+            setupEventListeners() {
+                // Keyboard controls
+                document.addEventListener("keydown", (event) => {
+                    if (event.key === "j") this.startListening();
+                    if (event.key === "f") this.stopListening();
+                });
+
+                // Recognition events
+                this.recognition.onstart = () => {
+                    this.listening = true;
+                    this.updateStatus('Listening...');
+                    this.updateButtonState(true);
+                };
+
+                this.recognition.onend = () => {
+                    this.listening = false;
+                    this.updateStatus('Voice Assistant Ready');
+                    this.updateButtonState(false);
+                };
+
+                this.recognition.onerror = (event) => {
+                    this.handleError(event);
+                };
+
+                this.recognition.onresult = (event) => {
+                    this.handleRecognitionResult(event);
+                };
+            }
+
+            handleRecognitionResult(event) {
+                const current = event.resultIndex;
+                const recognitionResult = event.results[current];
+                const recognitionText = recognitionResult[0].transcript.trim();
+
+                if (recognitionResult.isFinal) {
+                    this.updateStatus(`Processing: ${recognitionText}`);
+                    const response = this.processCommand(recognitionText);
+                    this.updateStatus(`Assistant: ${response}`);
+                    this.updateCommandLog(recognitionText, response);
+                    this.speak(response);
+                }
+            }
+
+            processCommand(text) {
+                text = text.toLowerCase().trim();
+
+                // Navigation commands
+                const routes = {
+                    'home': '/',
+                    'dashboard': '/Dashboard',
+                    'upload': '/upload',
+                    'profile': '/profile',
+                    'settings': '/settings'
+                };
+
+                // Check for navigation commands
+                for (const [page, url] of Object.entries(routes)) {
+                    if (text.includes(`go to ${page}`) || text.includes(`open ${page}`)) {
+                        window.location.href = url;
+                        return `Navigating to ${page}`;
+                    }
+                }
+
+                // Theme commands
+                if (text.includes('dark mode')) {
+                    this.setTheme('dark');
+                    return 'Switching to dark mode';
+                } else if (text.includes('light mode')) {
+                    this.setTheme('light');
+                    return 'Switching to light mode';
+                }
+
+                // Click commands
+                if (text.includes('click') || text.includes('select')) {
+                    return this.handleElementInteraction(text);
+                }
+
+                // Basic conversation
+                if (text.includes('hello') || text.includes('hi')) {
+                    return 'Hello! How can I help you?';
+                }
+
+                if (text.includes('bye') || text.includes('goodbye')) {
+                    this.stopListening();
+                    return 'Goodbye! Have a great day!';
+                }
+
+                return "I'm not sure what you want. Try saying 'hello' or 'go to home'";
+            }
+
+            handleElementInteraction(text) {
+                const elements = document.querySelectorAll('button, a, input[type="submit"]');
+                for (const element of elements) {
+                    const elementText = (element.textContent || element.value || '').toLowerCase();
+                    if (text.includes(elementText)) {
+                        element.click();
+                        return `Clicking ${elementText}`;
+                    }
+                }
+                return "Couldn't find that element";
+            }
+
+            updateCommandLog(command, response) {
+                const logItem = document.createElement('div');
+                logItem.className = 'command-item';
+                logItem.innerHTML = `
+                    <strong>Command:</strong> ${command}<br>
+                    <strong>Response:</strong> ${response}
+                `;
+                this.commandLog.insertBefore(logItem, this.commandLog.firstChild);
+
+                // Keep only last 10 commands
+                while (this.commandLog.children.length > 10) {
+                    this.commandLog.removeChild(this.commandLog.lastChild);
+                }
+            }
+
+            setTheme(theme) {
+                document.body.className = theme + '-theme';
+                localStorage.setItem('theme', theme);
+            }
+
+            updateStatus(message) {
+                if (this.statusDisplay) {
+                    this.statusDisplay.textContent = message;
+                }
+            }
+
+            updateButtonState(isListening) {
+                const button = document.querySelector('.voice-control-btn');
+                if (button) {
+                    button.textContent = isListening ? 'Stop Voice Control' : 'Start Voice Control';
+                    button.className = `voice-control-btn${isListening ? ' listening' : ''}`;
+                }
+            }
+
+            speak(text) {
+                const speech = new SpeechSynthesisUtterance(text);
+                speech.lang = "en-US";
+                window.speechSynthesis.speak(speech);
+            }
+
+            handleError(event) {
+                const errorMessages = {
+                    'no-speech': 'No speech detected. Please try again.',
+                    'audio-capture': 'No microphone detected.',
+                    'not-allowed': 'Microphone permission denied.',
+                    'network': 'Network error occurred.',
+                    'aborted': 'Speech recognition aborted.'
+                };
+
+                const message = errorMessages[event.error] || 'An error occurred.';
+                this.updateStatus(`Error: ${message}`);
+                console.error('Recognition error:', event.error);
+            }
+
+            toggleListening() {
+                if (this.listening) {
+                    this.stopListening();
+                } else {
+                    this.startListening();
+                }
+            }
+
+            startListening() {
+                if (!this.listening) {
+                    this.recognition.start();
+                }
+            }
+
+            stopListening() {
+                if (this.listening) {
+                    this.recognition.stop();
+                }
+            }
+        }
+
+        // Initialize the voice assistant when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const assistant = new VoiceAssistant();
+        });
+    </script>
 </body>
 </html>

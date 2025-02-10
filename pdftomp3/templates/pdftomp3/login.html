@@ -17,6 +17,12 @@
       <img src="{% static 'pdf.png' %}" alt="PDF to MP3 Logo" class="img-fluid" style="max-width: 70%;">
     </div>
     
+<!--Error popup-->
+{% if error %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  {{error}}
+</div>
+
     <!-- Left Column: Form -->
     <div class="col-md-6 d-flex flex-column justify-content-center">
       <h1 class="mb-4 text-center">Welcome Back Again</h1>

@@ -61,6 +61,8 @@ def login(request):
             auth(request,user)
             UserActivity.objects.create(user=user, start_time=now())
             return redirect(reverse_lazy("Dashboard"))
+        else:
+            return render(request,'pdftomp3/login.html',{"error":"Invalid username or password"})
     return render(request,'pdftomp3/login.html')
 
 
@@ -80,7 +82,7 @@ def signin(request):
             return redirect(reverse_lazy('verify'))
     else:
         print(form.errors) 
-    return render(request,'pdftomp3/sign.html',{"form":form})  
+    return render(request,'pdftomp3/sign.html',{"form":form,"error":form.errors})  
 
 def sigin_verification(request):
     if request.method == "POST":
