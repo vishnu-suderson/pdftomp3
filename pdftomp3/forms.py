@@ -54,4 +54,19 @@ class ProfileUpdateForm(forms.ModelForm):
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'}),
             'POSITION': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your position'}),
         }
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        
+        # Update the related User model
+        user = profile.user  # Assuming Profile has a OneToOneField to User
+        
+        user.username = self.cleaned_data['username']
+        user.first_name = self.cleaned_data['name']  # Saving name as first_name in User model
+        user.email = self.cleaned_data['email']
+        
+        if commit:
+            user.save()  # Save User model first
+            profile.save()  # Save Profile model
+        
+        return profile
 

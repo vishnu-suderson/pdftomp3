@@ -203,17 +203,22 @@
                     'dashboard': '/Dashboard',
                     'upload': '/upload',
                     'profile': '/profile',
-                    'settings': '/settings'
+                    'settings': '/settings',
+                    'files':'/files',
+                    'mp3files':'/mp3files/',
+                    'edit profile':'/edit-profile/',
                 };
 
                 // Check for navigation commands
                 for (const [page, url] of Object.entries(routes)) {
-                    if (text.includes(`go to ${page}`) || text.includes(`open ${page}`)) {
+                    if (text.includes(`go to ${page}`) || text.includes(`open ${page}`)|| text.includes(`move to ${page}`)) {
                         window.location.href = url;
                         return `Navigating to ${page}`;
                     }
                 }
-
+            if (text.includes("list audio files")) {
+                this.listAudioFiles();
+            }
                 // Theme commands
                 if (text.includes('dark mode')) {
                     this.setTheme('dark');
@@ -240,7 +245,40 @@
 
                 return "I'm not sure what you want. Try saying 'hello' or 'go to home'";
             }
-
+            listAudioFiles() {
+              let files = document.querySelectorAll(".card-body h6");
+              let fileNames = Array.from(files).map(file => file.innerText);
+              this.speak("The available audio files are: " + fileNames.join(", "));
+          }
+  
+          selectAudioFile(command) {
+              let files = document.querySelectorAll(".card-body h6");
+              let found = false;
+              files.forEach(file => {
+                  let fileName = file.innerText.toLowerCase();
+                  if (command.includes(fileName)) {
+                      file.closest(".card").querySelector("a").click();
+                      this.speak(`Opening ${file.innerText}`);
+                      found = true;
+                  }
+              });
+              if (!found) this.speak("Audio file not found.");
+          }
+  
+          deleteAudioFile(command) {
+              let files = document.querySelectorAll(".card-body h6");
+              let found = false;
+              files.forEach(file => {
+                  let fileName = file.innerText.toLowerCase();
+                  if (command.includes(fileName)) {
+                      file.closest(".card").remove();
+                      this.speak(`${file.innerText} has been deleted.`);
+                      found = true;
+                  }
+              });
+              if (!found) this.speak("Audio file not found.");
+          }
+  
             handleElementInteraction(text) {
                 const elements = document.querySelectorAll('button, a, input[type="submit"]');
                 for (const element of elements) {
@@ -286,6 +324,7 @@
                     button.className = `voice-control-btn${isListening ? ' listening' : ''}`;
                 }
             }
+
 
             speak(text) {
                 const speech = new SpeechSynthesisUtterance(text);
