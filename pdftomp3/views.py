@@ -337,8 +337,12 @@ def profile(request):
 def file_list(request):
     profile = get_object_or_404(Profile, user=request.user)
     pdf_files = PDFFile.objects.filter(user=profile)
+    #pdf_files=Paginator(pdf_files, 4)
+    paginator = Paginator(pdf_files, 4)  # Show 8 items per page
+    page_number = request.GET.get('page', 1)  # Get current page number, default to 1
+    page_obj = paginator.get_page(page_number)
     mp3_files = MP3File.objects.filter(user=profile)
-    return render(request, 'pdftomp3/file_list.html', {'pdf_files': pdf_files, 'mp3_files': mp3_files,"tab":"Files"})
+    return render(request, 'pdftomp3/file_list.html', {'pdf_files': page_obj, 'mp3_files': mp3_files,"tab":"Files",'profile': profile})
 
 def download_mp3(request, mp3_id):
     profile = get_object_or_404(Profile, user=request.user)
@@ -370,7 +374,7 @@ from celery.result import AsyncResult
 def preview_pdf(request, pdf_id):
     profile = get_object_or_404(Profile, user=request.user)
     pdf_file = get_object_or_404(PDFFile, id=pdf_id, user=profile)
-    return render(request, 'pdftomp3/preview.html', {'pdf_file': pdf_file,"tab":"Files"})
+    return render(request, 'pdftomp3/preview.html', {'pdf_file': pdf_file,"tab":"Files",'profile': profile})
 
 def Voicetype(request, pdf_id):
     profile = get_object_or_404(Profile, user=request.user)
@@ -390,29 +394,10 @@ def Voicetype(request, pdf_id):
             except Exception as e:
                 print("error",e)
                 return render(request, 'pdftomp3/voice_type.html', {'pdf_file': pdf_file, 'tab': 'Files'}) 
-    return render(request, 'pdftomp3/voice_type.html', {'pdf_file': pdf_file,  'tab': 'Files'})
+    return render(request, 'pdftomp3/voice_type.html', {'pdf_file': pdf_file,  'tab': 'Files', 'profile': profile})
 
 from django.http import JsonResponse
 from celery.result import AsyncResult
-
-
-def audio_files_view(request):
-    search_query = request.GET.get('search', '')  # Get the search query from the request
-    profile=Profile.objects.get(user=request.user)
-    if search_query:  # If a search query exists, filter the results
-        mp3_files = profile.mp3s.filter(title__icontains=search_query)
-    else:  # If no search query, fetch all files
-        mp3_files = profile.mp3s.all()
-    
-    context = {
-        'profile':profile,
-        'mp3_files': mp3_files,
-        'has_previous': False,  # Replace with pagination logic if applicable
-        'has_next': False,      # Replace with pagination logic if applicable
-        'tab': 'Play',
-    }
-    return render(request, 'pdftomp3/mp3files.html', context)
-
 from django.core.paginator import Paginator
 
 def audio_files_view(request):
@@ -447,6 +432,7 @@ def audio_files_view(request):
         'current_page': page_obj.number,
         'total_pages': paginator.num_pages,
         'tab': 'Play',
+        'profile': profile,
     }
     return render(request, 'pdftomp3/mp3files.html', context)
 
@@ -482,3 +468,42 @@ def progress(request):
     else:
         # For PENDING or STARTED status
         return JsonResponse({"status": status})
+
+
+
+def pdf_files_view(request):
+    search_query = request.GET.get('search', '')  # Get the search query from the request
+    print(f"Search query: {search_query}")
+    profile = Profile.objects.get(user=request.user)
+    
+    if search_query:
+        pdf_files = profile.pdfs.filter(title__icontains=search_query).order_by('id')
+    else:
+        pdf_files = profile.pdfs.all().order_by('id')
+
+    # Set up pagination
+    paginator = Paginator(pdf_files, 8)  # Show 8 items per page
+    page_number = request.GET.get('page', 1)  # Get current page number, default to 1
+    page_obj = paginator.get_page(page_number)
+
+    # Check if it's an AJAX request
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        html = render_to_string(
+            'pdftomp3/partials/pdffile.html', 
+            {'pdf_files': page_obj}
+        )
+        return JsonResponse({'html': html})
+
+    context = {
+        'pdf_files': page_obj,
+        'has_previous': page_obj.has_previous(),
+        'has_next': page_obj.has_next(),
+        'previous_page_number': page_obj.previous_page_number() if page_obj.has_previous() else None,
+        'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
+        'current_page': page_obj.number,
+        'total_pages': paginator.num_pages,
+        'tab': 'Play',
+        'profile': profile,
+    }
+    return render(request, 'pdftomp3/pdffile.html', context)
+

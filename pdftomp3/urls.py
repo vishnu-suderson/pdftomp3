@@ -18,6 +18,7 @@ urlpatterns = [
 
   path('preview/<int:pdf_id>/', views.preview_pdf, name='preview_pdf'),
   path('Voice/<int:pdf_id>/', views.Voicetype, name='voice_type'),
+  path('pdffiles/',views.pdf_files_view,name='pdffiles'),
     path('files/', views.file_list, name='file_list'),
    path('download/<int:mp3_id>/', views.download_mp3, name='download_mp3'),
 
