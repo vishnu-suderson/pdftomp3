@@ -82,7 +82,7 @@ def signin(request):
             return redirect(reverse_lazy('verify'))
     else:
         print(form.errors) 
-    return render(request,'pdftomp3/sign.html',{"form":form,"error":form.errors})  
+    return render(request,'pdftomp3/sign.html',{"form":form})  
 
 def sigin_verification(request):
     if request.method == "POST":
