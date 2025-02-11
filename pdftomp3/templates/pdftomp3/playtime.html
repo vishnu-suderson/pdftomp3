@@ -3,20 +3,35 @@
 {% block title %}
 <title>Play</title>
 {% endblock title %}
+
 {% block style %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
 <style>
+    /* Global Styles */
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #100f0f;
+        margin: 0;
+        padding: 0;
+    }
+    
+    /* Main Container */
     .main-content {
         display: flex;
+        flex-wrap: wrap;
         justify-content: center;
         align-items: flex-start;
         padding: 20px;
+        gap: 20px;
     }
+    
+    /* Content Section (Player) */
     .content {
+        flex: 1 1 500px;
         display: flex;
         flex-direction: column;
         align-items: center;
-        flex: 1;
     }
     .content h2 {
         font-size: 32px;
@@ -32,115 +47,150 @@
         height: 300px;
         border-radius: 10px;
         margin-bottom: 20px;
+        object-fit: cover;
     }
+    
+    /* Controls */
     .controls {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: center;
+        gap: 10px;
         margin-top: 20px;
     }
     .controls button {
         background-color: #4caf50;
         border: none;
         color: white;
-        padding: 10px 20px;
+        padding: 10px 15px;
         font-size: 18px;
         border-radius: 50%;
-        margin: 0 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    .controls button:hover {
+        background-color: #43a047;
     }
     .controls .volume {
         display: flex;
         align-items: center;
+        margin-left: 10px;
     }
     .controls .volume input {
         margin-left: 10px;
     }
+    
+    /* Playtime / Progress */
+    .playtime {
+        width: 100%;
+        max-width: 600px;
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .playtime span {
+        font-size: 14px;
+        color: #010101;
+    }
+    #playbackRange {
+        width: 100%;
+    }
+    
+    /* Playlist Section */
     .playlist {
+        flex: 0 1 400px;
         height: 80vh;
-        overflow: scroll;
-        margin-left: 20px;
-        width: 400px;
+        overflow-y: auto;
     }
     .playlist ul {
         list-style: none;
         padding: 0;
+        margin: 0;
     }
     .playlist ul li {
         display: flex;
         align-items: center;
-        padding: 10px 0;
+        padding: 10px;
         border-bottom: 1px solid #e0e0e0;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    .playlist ul li:hover,
+    .playlist ul li.active-song {
+        background-color: #333;
     }
     .playlist ul li img {
         width: 40px;
         height: 40px;
         border-radius: 5px;
         margin-right: 10px;
+        object-fit: cover;
     }
     .playlist ul li span {
-        text-align: center;
         font-size: 14px;
-        color: #666;
-    }
-    .playtime {
-        width: 100%;
-        max-width: 600px;
-        margin-top: 20px;
-    }
-    .playtime span {
-        font-size: 14px;
-        color: #666;
-    }
-    #playbackRange {
-        width: 100%;
+        color: #3b3b3b;
     }
     
+    /* Responsive Adjustments */
+    @media screen and (max-width: 768px) {
+        .content img {
+            width: 200px;
+            height: 200px;
+        }
+        .controls button {
+            padding: 8px 12px;
+            font-size: 16px;
+        }
+        .playlist {
+            width: 100%;
+            height: auto;
+            margin-top: 20px;
+        }
+    }
 </style>
 {% endblock style %}
+
 {% block main %}
 <div class="main-content">
+    <!-- Player Section -->
     <div class="content">
         <h2>Play Music</h2>
         <div class="now-playing">Now playing: <span id="current-song-title">{{ mp3file.title }}</span></div>
-        <img id="current-song-image" src='https://picsum.photos/id/{{mp3file.id}}/200/300' width="300" height="300" />
-
+        <img id="current-song-image" src="https://picsum.photos/id/{{mp3file.id}}/200/300" alt="Song Cover" width="300" height="300">
+        
         <audio id="audioPlayer" preload="metadata">
-            <source id="audioSource" src="{{ mp3file.mp3_file.url }}" type="audio/mpeg">
+            <source id="audioSource" src="/media/{{ mp3file.mp3_file }}" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
-
-        <div class="playtime d-flex align-items-center">
+        
+        <div class="playtime">
             <span id="currentTime">0:00</span>
-            <input class="mx-2" min="0" type="range" value="0" id="playbackRange"/>
+            <input type="range" min="0" value="0" id="playbackRange">
         </div>
         
         <div class="controls">
-            <button id="prevBtn">
-                <i class="fas fa-step-backward"></i>
-            </button>
-            <button id="playBtn">
-                <i class="fas fa-play"></i>
-            </button>
-            <button id="nextBtn">
-                <i class="fas fa-step-forward"></i>
-            </button>
-           <a href="{% url 'download_mp3' mp3_id=mp3file.id %}" download>
-            <button id="share">
-                <i class="fas fa-download"></i>
-            </button></a>
-            <div class="volume d-flex align-items-center ms-3">
+            <button id="prevBtn"><i class="fas fa-step-backward"></i></button>
+            <button id="playBtn"><i class="fas fa-play"></i></button>
+            <button id="nextBtn"><i class="fas fa-step-forward"></i></button>
+            <a href="{% url 'download_mp3' mp3_id=mp3file.id %}" download>
+                <button id="share"><i class="fas fa-download"></i></button>
+            </a>
+            <div class="volume">
                 <i class="fas fa-volume-down"></i>
-                <input class="ms-2" max="100" min="0" type="range" id="volumeRange" value="50"/>
+                <input type="range" min="0" max="100" id="volumeRange" value="50">
             </div>
         </div>
     </div>
-
+    
+    <!-- Playlist Section -->
     <div class="playlist">
         <ul id="playlist">
             {% for song in mp3fileall %}
             <li data-id="{{ song.id }}" data-src="{{ song.mp3_file.url }}" data-title="{{ song.title }}" data-image="{{ song.cover_image.url }}"
                 {% if song.id == mp3file.id %}class="active-song"{% endif %}>
-                <img src='https://picsum.photos/id/{{song.id}}/200/300' alt="Song Cover"/>
+                <img src="https://picsum.photos/id/{{ song.id }}/200/300" alt="Song Cover">
                 <span>{{ song.title }}</span>
             </li>
             {% endfor %}
@@ -148,7 +198,6 @@
     </div>
 </div>
 {% endblock main %}
-
 
 {% block script %}
 <script>
@@ -158,40 +207,38 @@
     const nextBtn = document.getElementById('nextBtn');
     const volumeRange = document.getElementById('volumeRange');
     const playbackRange = document.getElementById('playbackRange');
-    const currentTime = document.getElementById('currentTime');
+    const currentTimeDisplay = document.getElementById('currentTime');
     const playlist = document.getElementById('playlist');
     const audioSource = document.getElementById('audioSource');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentSongImage = document.getElementById('current-song-image');
-
+    
     let songs = Array.from(playlist.getElementsByTagName('li'));
-    let currentIndex = parseInt("{{ current_index }}") || 0;  // Ensure it's a valid number
-    let totalSongs = parseInt("{{ total_songs }}") || 0;  // Default to 0 if undefined
+    let currentIndex = parseInt("{{ current_index }}") || 0;
+    let totalSongs = parseInt("{{ total_songs }}") || songs.length;
+    
     function loadSong(index) {
         if (index < 0 || index >= totalSongs) return;
-        
         let song = songs[index];
         let newSrc = song.dataset.src;
         let newTitle = song.dataset.title;
         let newImage = song.dataset.image;
         let newId = song.dataset.id;
-
+    
         audioSource.src = newSrc;
         currentSongTitle.textContent = newTitle;
         currentSongImage.src = newImage;
         audioPlayer.load();
         audioPlayer.play();
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-
+    
         songs.forEach(s => s.classList.remove('active-song'));
         song.classList.add('active-song');
-
+    
         currentIndex = index;
-
-        // Update the URL without reloading the page
         window.history.pushState(null, "", `/playtime/${newId}/`);
     }
-
+    
     playBtn.addEventListener('click', () => {
         if (audioPlayer.paused) {
             audioPlayer.play();
@@ -201,42 +248,41 @@
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     });
-
+    
     volumeRange.addEventListener('input', () => {
         audioPlayer.volume = volumeRange.value / 100;
     });
-
+    
     playbackRange.addEventListener('input', () => {
         audioPlayer.currentTime = playbackRange.value;
     });
-
+    
     audioPlayer.addEventListener('timeupdate', () => {
-        let currentMinutes = Math.floor(audioPlayer.currentTime / 60);
-        let currentSeconds = Math.floor(audioPlayer.currentTime % 60);
-        currentTime.textContent = `${currentMinutes}:${currentSeconds < 10 ? '0' : ''}${currentSeconds}`;
+        let minutes = Math.floor(audioPlayer.currentTime / 60);
+        let seconds = Math.floor(audioPlayer.currentTime % 60);
+        currentTimeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         playbackRange.value = audioPlayer.currentTime;
     });
-
+    
     nextBtn.addEventListener('click', () => {
         if (currentIndex < totalSongs - 1) {
             loadSong(currentIndex + 1);
         }
     });
-
+    
     prevBtn.addEventListener('click', () => {
         if (currentIndex > 0) {
             loadSong(currentIndex - 1);
         }
     });
-
+    
     songs.forEach((song, index) => {
         song.addEventListener('click', () => {
             loadSong(index);
         });
     });
-
-    // Highlight the initially playing song
-    if (currentIndex !== -1) {
+    
+    if (songs[currentIndex]) {
         songs[currentIndex].classList.add('active-song');
     }
 </script>

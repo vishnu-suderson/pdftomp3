@@ -24,6 +24,10 @@
     </div>
 
     <div class="wrapper">
+        <!-- Add this to your HTML for status display -->
+<div id="voice-status" style="position: fixed; top: 10px; right: 10px; padding: 5px 10px; background: #f0f0f0; border-radius: 5px;">
+    Status: <span id="status-text">Inactive</span>
+</div>
         <!-- Desktop Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header p-4">
@@ -53,7 +57,7 @@
                     </a>
                     <a href="{% url 'Profile' %}" style="text-decoration: none;">
                         <button class="{% if tab == 'Users' %}btn btn-outline-light w-100 mb-2{% else %}nav-link{% endif %}">
-                            <i class="bi bi-people"></i> User
+                            <i class="bi bi-people"></i> Profile
                         </button>
                     </a>
                     <a href="{% url 'settings' %}" style="text-decoration: none;">
