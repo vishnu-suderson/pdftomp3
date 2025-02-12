@@ -1,57 +1,33 @@
-class VoiceAssistant {
+/* class VoiceAssistant {
     constructor() {
         this.speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         this.speechRecognition.continuous = false;
         this.speechRecognition.interimResults = false;
         this.speechRecognition.lang = 'en-US';
         this.speechRecognition.onresult = (event) => this.handleResult(event);
-        
-        this.synth = window.speechSynthesis; // Initialize speech synthesis
-
-        // Bind keypress events
-        this.bindKeyPressEvents();
-    }
-
-    bindKeyPressEvents() {
-        document.addEventListener('keydown', (event) => {
-            if (event.key.toLowerCase() === 'j') {
-                this.startListening();
-            }
-            if (event.key.toLowerCase() === 'f') {
-                this.stopListening();
-            }
-        });
     }
 
     startListening() {
-        console.log("Voice assistant started...");
-        this.speak("Voice assistant started.");
         this.speechRecognition.start();
     }
 
     stopListening() {
-        console.log("Voice assistant stopped.");
-        this.speak("Voice assistant stopped.");
         this.speechRecognition.stop();
     }
 
     handleResult(event) {
         const transcript = event.results[0][0].transcript.toLowerCase().trim();
         console.log("Recognized text:", transcript);
-        const response = this.processCommand(transcript);
-        if (response) {
-            this.speak(response);
-        }
+        this.processCommand(transcript);
     }
-
-    speak(text) {
-        if (this.synth.speaking) {
-            console.log("Already speaking...");
-            return;
-        }
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = "en-US";
-        this.synth.speak(utterance);
+    setupKeyboardControls() {
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "j") {
+                this.startListening();
+            } else if (event.key === "f") {
+                this.stopListening();
+            }
+        });
     }
 
     normalizeText(text) {
@@ -65,7 +41,7 @@ class VoiceAssistant {
     processCommand(text) {
         text = this.normalizeText(text);
 
-        // 🔹 Handle non-navigation commands
+        // 1️⃣ First, handle non-navigation commands:
         if (this.findBestMatch(text, ['click back button', 'go back', 'back'])) {
             window.history.back();
             return "Going back to the previous page.";
@@ -83,12 +59,7 @@ class VoiceAssistant {
             return this.deleteAudioFile(text);
         }
 
-        if (this.findBestMatch(text, ['toggle dark mode', 'dark mode', 'enable dark mode', 'disable dark mode'])) {
-            this.toggleDarkMode();
-            return "Toggling dark mode.";
-        }
-
-        // 🔹 Handle navigation commands
+        // 2️⃣ If no specific command matched, check navigation commands:
         const urlMappings = {
             'Dashboard': ['dashboard', 'main page', 'control panel', 'home'],
             'upload': ['upload', 'upload file', 'add file'],
@@ -121,33 +92,5 @@ class VoiceAssistant {
 
         return "I didn't understand that command. Try saying 'go to dashboard' or 'list audio files'.";
     }
-
-    // 🔹 Toggle Dark Mode Feature
-    toggleDarkMode() {
-        document.body.classList.toggle("dark-mode");
-        console.log("Dark mode toggled.");
-    }
-
-    // 🔹 Improved methods for handling files
-    listAudioFiles() {
-        const audioFiles = ['song1.mp3', 'song2.mp3', 'podcast1.mp3']; // Simulated file list
-        if (audioFiles.length === 0) {
-            return "No audio files found.";
-        }
-        console.log("Audio files:", audioFiles.join(", "));
-        return `You have the following audio files: ${audioFiles.join(", ")}`;
-    }
-
-    playAudioFile(text) {
-        console.log("Playing an audio file based on:", text);
-        return "Playing the requested audio file.";
-    }
-
-    deleteAudioFile(text) {
-        console.log("Deleting an audio file based on:", text);
-        return "Deleted the requested audio file.";
-    }
 }
-
-// Initialize the voice assistant
-const assistant = new VoiceAssistant();
+ */

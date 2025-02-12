@@ -33,14 +33,15 @@ def convert_pdf_to_mp3_task(voice,pdf_path, title, profile):
     output_dir = "media/mp3s"  # Ensure this directory exists
     os.makedirs(output_dir, exist_ok=True)  # Create the directory if it doesn't exist
     types = "male" if voice == "en-US-GuyNeural" else "female"
-    output_file = os.path.join(output_dir, f"{title}_[{types}].mp3")
+    file = title.replace(" ", "_")
+    output_file = os.path.join(output_dir, f"{file}_[{types}].mp3")
 
     # Run the conversion task asynchronously
     loop = asyncio.get_event_loop()
     loop.run_until_complete(pdf_to_mp3(pdf_path, output_file,voice))
 
     user = Profile.objects.get(id=profile)
-    mp3_file = MP3File(mp3_file=f"mp3s/{title}_{types}.mp3", title=title, user=user)
+    mp3_file = MP3File(mp3_file=f"mp3s/{file}_[{types}].mp3", title=title, user=user)
     mp3_file.save()
 
     return {"status": "success","id":mp3_file.id,"user":profile} # Return the instance for further use

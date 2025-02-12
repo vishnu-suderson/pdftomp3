@@ -63,19 +63,23 @@
     const searchInput = document.getElementById("searchInput");
     const searchButton = document.getElementById("searchBtn");
     const PdfFilesDiv = document.getElementById("PdfFiles");
-
+    
     function fetchAudioFiles(query) {
-      fetch(`/pdffiles/?search=${query}`)
-        .then(response => response.text())
-        .then(data => {
-          const parser = new DOMParser();
-          const newContent = parser.parseFromString(data, "text/html");
-          const updatedAudioFiles = newContent.querySelector("#PdfFiles").innerHTML;
-          PdfFilesDiv.innerHTML = updatedAudioFiles;
-        })
-        .catch(error => console.error("Error fetching audio files:", error));
-    }
-
+      fetch(`/mp3files/?search=${query}`)
+          .then(response => response.text())
+          .then(data => {
+              const parser = new DOMParser();
+              const newContent = parser.parseFromString(data, "text/html");
+              const updatedAudioFiles = newContent.querySelector("#PdfFiles");
+  
+              if (updatedAudioFiles) {
+                  document.getElementById("PdfFiles").innerHTML = updatedAudioFiles.innerHTML;
+              } else {
+                  console.error("Error: #PDF Files not found in response.");
+              }
+          })
+          .catch(error => console.error("Error fetching audio files:", error));
+  }
     searchInput.addEventListener("input", function () {
       fetchAudioFiles(this.value);
     });
@@ -89,7 +93,7 @@
       if (event.target.classList.contains("delete-btn")) {
         const mp3Id = event.target.getAttribute("data-id");
 
-        if (confirm("Are you sure you want to delete this MP3 file?")) {
+        if (confirm("Are you sure you want to delete this PDF file?")) {
           fetch(`/delete_mp3/${mp3Id}/`, {
             method: "DELETE",
             headers: { "X-CSRFToken": "{{ csrf_token }}" }
@@ -97,10 +101,10 @@
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              alert("MP3 file deleted successfully!");
+              alert("Pdf file deleted successfully!");
               event.target.closest(".col-lg-3").remove();
             } else {
-              alert("Failed to delete MP3 file.");
+              alert("Failed to delete PDF file.");
             }
           })
           .catch(error => console.error("Error deleting file:", error));

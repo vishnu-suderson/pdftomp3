@@ -150,13 +150,15 @@ def single_upload(request):
             return render(request, 'pdftomp3/upload.html', {
                 'tab': 'single_upload',
                 'form': form,
-                'error': form.errors  # Pass errors to the template
+                'error': form.errors,  # Pass errors to the template
+                'profile': profile,
             })
     else:
         form = PDFUploadForm()
     return render(request, 'pdftomp3/upload.html', {
         'tab': 'single_upload',
-        'form': form
+        'form': form,
+        'profile': Profile.objects.get(user=request.user),
     })
 
 
@@ -176,7 +178,8 @@ def playtime(request, id):
         'mp3fileall': mp3all,
         'mp3file': mp3,
         'current_index': current_index,
-        'total_songs': len(mp3_list)
+        'total_songs': len(mp3_list),
+        'profile': profile,
     })
 
 
@@ -204,7 +207,7 @@ def edit_profile(request):
     else:
         form = ProfileUpdateForm(instance=profile)
 
-    return render(request, 'pdftomp3/profile_form.html', {'form': form,"tab":"Users"})
+    return render(request, 'pdftomp3/profile_form.html', {'form': form,"tab":"Users","profile":profile})
 
 
 @login_required
@@ -213,14 +216,6 @@ def settings_view(request):
     user_profile = Profile.objects.get(user=request.user)
     return render(request, 'pdftomp3/settings.html', {'profile': user_profile,"tab":"Menu"})
 
-@login_required
-def toggle_dark_mode(request):
-    """ Handles toggling dark mode (can be implemented with session storage). """
-    if 'dark_mode' in request.session:
-        request.session['dark_mode'] = not request.session['dark_mode']
-    else:
-        request.session['dark_mode'] = True
-    return redirect('settings')
 
 def send_otp(request):
     if request.method == "POST":
@@ -319,7 +314,7 @@ def profile(request):
    total_audio_duration = profile.mp3s.count()
 
     # Get the most recent conversion
-   last_conversion = mp3_files.first()
+   last_conversion = mp3_files.last()
 
    context = {
         'profile': profile,
@@ -331,7 +326,14 @@ def profile(request):
     }
 
    return render(request, 'pdftomp3/profile.html', context)
-    
+
+
+def about(request):
+    return render(request, 'pdftomp3/about.html',{"tab":"About"})
+
+
+def privacy(request):
+    return render(request, 'pdftomp3/privacy.html',{"tab":"Privacy"})
 
 
 def file_list(request):
@@ -393,7 +395,7 @@ def Voicetype(request, pdf_id):
                 return redirect('progress_view')  # Redirect to a progress page or file list
             except Exception as e:
                 print("error",e)
-                return render(request, 'pdftomp3/voice_type.html', {'pdf_file': pdf_file, 'tab': 'Files'}) 
+                return render(request, 'pdftomp3/voice_type.html', {'pdf_file': pdf_file, 'tab': 'Files','profile': profile, 'error': str(e)}) 
     return render(request, 'pdftomp3/voice_type.html', {'pdf_file': pdf_file,  'tab': 'Files', 'profile': profile})
 
 from django.http import JsonResponse

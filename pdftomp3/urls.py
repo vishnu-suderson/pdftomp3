@@ -9,7 +9,7 @@ urlpatterns = [
     path('Dashboard',views.dashboard, name="Dashboard"),
     path('upload',views.single_upload, name="single_upload"),
     path('play/<int:id>/',views.playtime, name="playtime"),
-    path('mp3files',views.audio_files_view, name="mp3files"),
+    path('mp3files/',views.audio_files_view, name="mp3files"),
 
 
  path('progress', views.progress, name='progress'),
@@ -18,13 +18,14 @@ urlpatterns = [
 
   path('preview/<int:pdf_id>/', views.preview_pdf, name='preview_pdf'),
   path('Voice/<int:pdf_id>/', views.Voicetype, name='voice_type'),
-  path('pdffiles',views.pdf_files_view,name='pdffiles'),
-    path('files', views.file_list, name='file_list'),
+  path('pdffiles/',views.pdf_files_view,name='pdffiles'),
+    path('files/', views.file_list, name='file_list'),
    path('download/<int:mp3_id>/', views.download_mp3, name='download_mp3'),
+   path('about/', views.about, name='about'),
+   path('privacy/', views.privacy, name='privacy'),
 
    path('profile',views.profile,name="Profile"),
    path('settings/', views.settings_view, name='settings'),
-    path('toggle-dark-mode/', views.toggle_dark_mode, name='toggle_dark_mode'),
 
     path('edit-profile/', views.edit_profile, name='edit_profile'),
     path("delete_mp3/<int:mp3_id>/", views.delete_mp3, name="delete_mp3"),

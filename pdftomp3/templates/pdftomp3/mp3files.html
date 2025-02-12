@@ -3,7 +3,7 @@
 {% block main %}
 <div class="container">
   <!-- Search Bar -->
-  <div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="d-flex justify-content-between align-items-center mb-3 pt-4">
     <h3 class="h5">🎵 My MP3 Files</h3>
     <form id="searchForm" class="d-flex" onsubmit="return false;">
       <input type="search" name="search" id="searchInput" class="form-control form-control-sm me-2" placeholder="Search...">
@@ -64,16 +64,22 @@
     const searchButton = document.getElementById("searchBtn");
     const audioFilesDiv = document.getElementById("audioFiles");
 
-    function fetchAudioFiles(query) {
-      fetch(`/mp3files/?search=${query}`)
-        .then(response => response.text())
-        .then(data => {
-          const parser = new DOMParser();
-          const newContent = parser.parseFromString(data, "text/html");
-          const updatedAudioFiles = newContent.querySelector("#audioFiles").innerHTML;
-          audioFilesDiv.innerHTML = updatedAudioFiles;
-        })
-        .catch(error => console.error("Error fetching audio files:", error));
+    
+      function fetchAudioFiles(query) {
+        fetch(`/mp3files/?search=${query}`)
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const newContent = parser.parseFromString(data, "text/html");
+                const updatedAudioFiles = newContent.querySelector("#audioFiles");
+    
+                if (updatedAudioFiles) {
+                    document.getElementById("audioFiles").innerHTML = updatedAudioFiles.innerHTML;
+                } else {
+                    console.error("Error: #audioFiles not found in response.");
+                }
+            })
+            .catch(error => console.error("Error fetching audio files:", error));
     }
 
     searchInput.addEventListener("input", function () {
