@@ -18,11 +18,14 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
-
+from django.conf.urls import handler404, handler500
+from pdftomp3.views import error_404_view, error_500_view
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('pdftomp3.urls') ),
 ]
+handler404 = "pdftomp3.views.error_404_view"
+handler500 = "pdftomp3.views.error_500_view"
 
 
 if settings.DEBUG:

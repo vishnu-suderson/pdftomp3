@@ -327,6 +327,11 @@ def profile(request):
 
    return render(request, 'pdftomp3/profile.html', context)
 
+def error_404_view(request, exception):
+    return render(request, 'pdftomp3/404.html', status=404)
+
+def error_500_view(request):
+    return render(request, 'pdftomp3/500.html', status=500)
 
 def about(request):
     return render(request, 'pdftomp3/about.html',{"tab":"About"})
