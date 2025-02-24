@@ -1,4 +1,4 @@
-class VoiceAssistant {
+/* class VoiceAssistant {
     constructor() {
         this.speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         this.speechRecognition.continuous = false;
@@ -151,3 +151,4 @@ class VoiceAssistant {
 
 // Initialize the voice assistant
 const assistant = new VoiceAssistant();
+ */

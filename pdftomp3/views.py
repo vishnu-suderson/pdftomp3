@@ -348,8 +348,8 @@ def file_list(request):
     paginator = Paginator(pdf_files, 4)  # Show 8 items per page
     page_number = request.GET.get('page', 1)  # Get current page number, default to 1
     page_obj = paginator.get_page(page_number)
-    mp3_files = MP3File.objects.filter(user=profile)
-    return render(request, 'pdftomp3/file_list.html', {'pdf_files': page_obj, 'mp3_files': mp3_files,"tab":"Files",'profile': profile})
+    mp3_files = MP3File.objects.filter(user=profile).order_by('id')[:4] 
+    return render(request, 'pdftomp3/file_list.html', {'pdf_files': page_obj, 'mp3_files': mp3_files ,"tab":"Files",'profile': profile})
 
 def download_mp3(request, mp3_id):
     profile = get_object_or_404(Profile, user=request.user)
@@ -509,7 +509,7 @@ def pdf_files_view(request):
         'next_page_number': page_obj.next_page_number() if page_obj.has_next() else None,
         'current_page': page_obj.number,
         'total_pages': paginator.num_pages,
-        'tab': 'Play',
+        'tab': 'Files',
         'profile': profile,
     }
     return render(request, 'pdftomp3/pdffile.html', context)
