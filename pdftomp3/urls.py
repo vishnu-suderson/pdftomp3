@@ -1,4 +1,7 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+
 from . import views
 
 urlpatterns = [
@@ -23,7 +26,6 @@ urlpatterns = [
    path('download/<int:mp3_id>/', views.download_mp3, name='download_mp3'),
    path('about/', views.about, name='about'),
    path('privacy/', views.privacy, name='privacy'),
-
    path('profile',views.profile,name="Profile"),
    path('settings/', views.settings_view, name='settings'),
 

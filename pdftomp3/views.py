@@ -327,7 +327,7 @@ def profile(request):
 
    return render(request, 'pdftomp3/profile.html', context)
 
-def error_404_view(request, exception):
+def error_404_view(request,exception):
     return render(request, 'pdftomp3/404.html', status=404)
 
 def error_500_view(request):

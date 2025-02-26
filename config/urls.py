@@ -24,9 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('pdftomp3.urls') ),
 ]
-handler404 = "pdftomp3.views.error_404_view"
-handler500 = "pdftomp3.views.error_500_view"
-
+handler404 = error_404_view
+handler500 = error_500_view
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
