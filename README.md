@@ -23,7 +23,7 @@ Welcome to **PDF to MP3 Converter**, a web application built using **Django** th
 
 - **Backend**: Django (Python)
 - **Frontend**: HTML, CSS, JavaScript (Bootstrap for styling)
-- **Text-to-Speech**: Python `gTTS` (Google Text-to-Speech) or `pyttsx3` (Offline)
+- **Text-to-Speech**: Python `edgetts` 
 - **File Handling**: Django's `FileField` & Media settings
 - **Database**: SQLite (default), can be switched to MySQL/PostgreSQL
 
@@ -101,13 +101,13 @@ pdf_to_mp3_converter/
 ## 📦 Requirements
 
 - Django >= 3.x
-- gTTS or pyttsx3
+- edgetts
 - PyPDF2 or pdfminer.six
 - Bootstrap (for frontend)
 
 Install via:
 ```bash
-pip install Django gTTS PyPDF2
+pip install Django edgetts PyPDF2
 ```
 
 ---
