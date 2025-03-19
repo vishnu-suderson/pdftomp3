@@ -1,0 +1,182 @@
+{% extends 'pdftomp3/layout.html' %}
+{% load static %}
+{% block title %}
+<title>Select Voice Type</title>
+{% endblock title %}
+
+{% block style %}
+<style>
+    .container {
+        max-width: 100%;
+        padding: 20px;
+        text-align: center;
+    }
+    .container h3 {
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+
+    .options {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .option {
+        width: 100%;
+        max-width: 300px;
+        height: 350px;
+        background: linear-gradient(to bottom, #a8e063, #56ab2f);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.3s;
+        position: relative;
+    }
+
+    .option:hover {
+        transform: scale(1.05);
+    }
+
+    .option:nth-child(1) {
+        background: url("{% static './male.png' %}") center/cover;
+    }
+
+    .option:nth-child(2) {
+        background: url("{% static './female.png' %}") center/cover;
+    }
+
+    .option p {
+        font-size: 20px;
+        color: #fff;
+        margin: 0;
+    }
+
+    .option input[type="radio"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .option.selected {
+        border: 5px solid #0000ff;
+        background-color: rgba(0, 0, 255, 0.2);
+    }
+
+    .buttons {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        margin-top: 30px;
+    }
+
+    .button {
+        width: 120px;
+        height: 45px;
+        border: none;
+        border-radius: 20px;
+        font-size: 18px;
+        color: #fff;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .button.back {
+        background-color: #ff4b4b;
+    }
+
+    .button.next {
+        background-color: #4caf50;
+    }
+
+    .button:disabled {
+        background-color: gray;
+        cursor: not-allowed;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .options {
+            flex-direction: column;
+            align-items: center;
+        }
+        .option {
+            max-width: 90%;
+            height: 300px;
+        }
+        .button {
+            width: 100px;
+            font-size: 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container h3 {
+            font-size: 22px;
+        }
+        .option {
+            max-width: 100%;
+            height: 250px;
+        }
+        .buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        .button {
+            width: 90%;
+        }
+    }
+</style>
+{% endblock style %}
+
+{% block main %}
+<h3 class="text-center pb-3">Select Voice Type</h3>
+<form method="post" id="voiceForm">
+    {% csrf_token %}
+    <div class="container">
+        <div class="options">
+            <label class="option">
+                <input checked="checked" name="voiceType" type="radio" value="male"/>
+            </label>
+            <label class="option selected">
+                <input name="voiceType" type="radio" value="female"/>
+            </label>
+        </div>
+        <div class="buttons">
+            <button class="button back" id="back" type="button">Back</button>
+            <button type="submit" class="button next" id="nextButton">Next</button>
+        </div>
+    </div>
+</form>
+{% endblock main %}
+
+{% block script %}
+<script>
+    const options = document.querySelectorAll('.option');
+    const nextButton = document.getElementById('nextButton');
+    const form = document.getElementById('voiceForm');
+
+    options.forEach(option => {
+        option.addEventListener('click', () => {
+            options.forEach(o => o.classList.remove('selected'));
+            option.classList.add('selected');
+        });
+    });
+    back.addEventListener('click', () => {
+        window.history.back();
+    });
+
+    form.addEventListener('submit', (e) => {
+        nextButton.disabled = true; // Prevent multiple clicks
+        nextButton.textContent = "Loading..."; // Show loading state
+    });
+</script>
+{% endblock script %}

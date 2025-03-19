@@ -1,0 +1,62 @@
+{% extends 'pdftomp3/layout.html' %}
+{% load custom_filters %}
+{% block main %}
+<div class="mb-4">
+    <h3 class="h5 mb-3">&nbsp;&nbsp; Recent Files Upload</h3>
+    <div class="row mx-2 g-3 justify-content-center">
+      
+      <!-- Upload Button -->
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+        <a href="{% url 'single_upload' %}">
+          <button class="upload-btn">
+            <span class="display-6 text-muted">+</span>
+          </button>
+        </a>
+      </div>
+  
+      <!-- Dynamic PDF Files -->
+      {% for pdf in pdf_files %}
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+        <a href="{% url 'preview_pdf' pdf_id=pdf.id %}">
+          <div class="placeholder-box" style="background: url('https://picsum.photos/id/{{pdf.id}}/200/300'); background-size: cover; height: 120px; border-radius: 8px;">
+          </div>
+        </a>
+        <small class="d-block text-truncate" style="max-width: 100%;">{{ pdf.title|truncate_words:15 }}</small>
+      </div>
+      {% endfor %}
+  
+      <!-- View More Button -->
+      <div class="col-6 col-sm-4 col-md-3 col-lg-2 text-center">
+        <a href="{% url 'pdffiles' %}" class="d-block text-decoration-none">
+          <span class="display-6">View more</span>
+        </a>
+      </div>
+  
+    </div>
+  </div>
+  
+<hr>
+<!-- Audio Files Section -->
+<div class="mx-3">
+  <h3 class="h5 mb-3">Audio files</h3>
+  <div class="row g-4">
+    {% for mp3 in mp3_files %}
+      <div class="col-md-3 col-sm-6">
+          <div class="audio-card">
+              <div class="audio-thumbnail" style="background: url('https://picsum.photos/id/{{mp3.id}}/200/300'); background-size:100% 100%;">
+                  <button class="play-btn">
+                      <i class="bi bi-play-fill"></i>
+                  </button>
+              </div>
+              <p class="small text-danger mb-0 mt-2">{{ mp3.title }}</p>
+              <p class="small fw-medium mb-0">{{ mp3.date }}</p>
+          </div>
+      </div>
+      {% endfor %}
+        <!-- Repeat for other audio cards -->
+  </div>
+</div>
+{% endblock %}
+
+
+

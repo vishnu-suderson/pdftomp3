@@ -1,0 +1,61 @@
+{% extends 'pdftomp3/layout.html'%}
+{% load static %}
+{% block main %}
+        <div class="card border-0 shadow-lg rounded-4 p-4 mx-auto" style="max-width: 900px;">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary">Settings</h2>
+                <div class="profile-info text-center">
+                    <img src="{{ profile.profile_pic.url }}" alt="Profile Picture" class="rounded-circle border shadow-sm" width="90" height="90">
+                    <h5 class="mt-3 mb-1">{{ profile.name }}</h5>
+                    <p class="text-muted">{{ profile.email }}</p>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="{% url 'edit_profile' %}" class="list-group-item list-group-item-action py-3">🔒 Account & Security</a>
+                <a href="{% url 'privacy' %}" class="list-group-item list-group-item-action py-3">🔏 Privacy & Policy</a>
+                <a href="{% url 'about' %}" class="list-group-item list-group-item-action py-3">ℹ️ About</a>
+                <a href="{% url 'delete' %}" class="list-group-item list-group-item-action text-danger text-center fw-bold py-3">🚪🗑️ Delete Account</a>
+            </div>
+        </div>
+{% endblock main%}
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: 0.3s;
+        }
+        .dark-mode {
+            background-color: #1e1e1e;
+            color: white;
+        }
+        .card {
+            background: white;
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+        .dark-mode .card {
+            background: #2c2c2c;
+            color: white;
+        }
+        .list-group-item {
+            transition: all 0.3s;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+        }
+        .list-group-item:hover {
+            background: #f0f0f0;
+        }
+        .dark-mode .list-group-item:hover {
+            background: #3a3a3a;
+        }
+        .profile-info img {
+            border: 3px solid #ddd;
+        }
+        @media (max-width: 768px) {
+            .card {
+                width: 100%;
+            }
+        }
+    </style>
+</body>
+</html>

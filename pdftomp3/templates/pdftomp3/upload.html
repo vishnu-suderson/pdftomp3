@@ -1,0 +1,191 @@
+{% extends 'pdftomp3/layout.html' %}
+{% load static %}
+{% block title %}
+<title>Single Upload</title>
+{% endblock title %}
+{% block style %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .upload-container {
+        border: 2px solid #007bff;
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        margin: 20px 0;
+        background-color: #fff;
+    }
+
+    .upload-container img {
+        width: 350px;
+        height: 350px;
+    }
+
+    .upload-container button {
+        margin-top: 10px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #fff;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .header img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .header .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .header .user-info div {
+        margin-left: 10px;
+    }
+
+    .footer-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .footer-buttons .btn {
+        width: 100px;
+    }
+
+    .drag-drop-area {
+        border: 2px dashed #007bff;
+        border-radius: 15px;
+        padding: 40px;
+        text-align: center;
+        background-color: #e9ecef;
+        cursor: pointer;
+        height: 350px;
+    }
+
+    .drag-drop-area img {
+        width: 200px;
+        height: 150px;
+    }
+
+    .text-danger {
+        color: red;
+    }
+
+    .container {
+        background: var(--header-bg);
+    }
+</style>
+{% endblock style %}
+
+{% block main %}
+<div class="container">
+    <form id="uploadForm" enctype="multipart/form-data" method="POST">
+        {% csrf_token %}
+        <div class="upload-container">
+            <div class="drag-drop-area" id="drop-area">
+                <img alt="Upload icon" src="{% static './single_upload.png' %}" />
+                <p>Drag &amp; Drop your files here or click to upload</p>
+                <input
+                    accept=".pdf"
+                    class="form-control"
+                    id="fileInput"
+                    name="pdf_file"
+                    style="display: none;"
+                    type="file"
+                />
+                <button
+                    class="btn btn-primary"
+                    type="button"
+                    onclick="document.getElementById('fileInput').click();"
+                >
+                    Browse Files To Upload
+                </button>
+            </div>
+            <p class="text-danger mt-2">PDF only*</p>
+        </div>
+        {% if error %}
+        <p class="text-danger mt-2">{{ error }}</p>
+        {% endif %}
+        <p class="text-center">
+            UPLOAD TO FILE ONLY PDF TO CONVERT MP3.
+        </p>
+        <div id="fileContent" style="display: none;" class="alert alert-success">File uploaded successfully!</div>
+        <div class="footer-buttons">
+            <button class="btn btn-danger" type="button" onclick="window.history.back();">
+                Back
+            </button>
+            <button class="btn btn-success" type="submit">Next</button>
+        </div>
+    </form>
+</div>
+{% endblock main %}
+
+{% block script %}
+<script>
+    const dropArea = document.getElementById('drop-area');
+    const fileInput = document.getElementById('fileInput');
+
+    // Prevent default behavior for drag events
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, e => e.preventDefault());
+        dropArea.addEventListener(eventName, e => e.stopPropagation());
+    });
+
+    // Highlight drop area when file is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.add('highlight');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, () => {
+            dropArea.classList.remove('highlight');
+        });
+    });
+
+    // Handle file drop
+    dropArea.addEventListener('drop', e => {
+        const files = e.dataTransfer.files;
+        const fileContentDiv = document.getElementById('fileContent');
+        if (files.length > 0 && files[0].type === 'application/pdf') {
+            fileInput.files = files; // Set the dropped file as the input file
+            fileContentDiv.textContent = `File "${files[0].name}" uploaded successfully.`;
+            fileContentDiv.style.display='';
+
+        } else {
+            alert('Please upload a valid PDF file.');
+        }
+    });
+
+
+
+   document.getElementById('fileInput').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        const fileContentDiv = document.getElementById('fileContent');
+
+        if (file) {
+            // Check if the uploaded file is a PDF
+            if (file.type === 'application/pdf') {
+                fileContentDiv.textContent = `File "${file.name}" uploaded successfully.`;
+                fileContentDiv.style.display='';
+            } else {
+                fileContentDiv.textContent = 'Please upload a valid PDF file.';
+                fileContentDiv.className = 'error';
+            }
+        } else {
+            fileContentDiv.textContent = 'No file uploaded.';
+            fileContentDiv.className = 'error';
+        }
+    });
+</script>
+{% endblock script %}

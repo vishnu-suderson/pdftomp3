@@ -1,0 +1,118 @@
+{% extends 'pdftomp3/layout.html' %}
+
+{% block main %}
+<div class="container">
+  <!-- Search Bar -->
+  <div class="d-flex justify-content-between align-items-center mb-3 pt-4">
+    <h3 class="h5">🎵 My MP3 Files</h3>
+    <form id="searchForm" class="d-flex" onsubmit="return false;">
+      <input type="search" name="search" id="searchInput" class="form-control form-control-sm me-2" placeholder="Search...">
+      <button type="button" class="btn btn-primary btn-sm" id="searchBtn">Search</button>
+    </form>
+  </div>
+
+  <hr>
+
+  <!-- MP3 Files Grid -->
+  <div class="row g-4" id="audioFiles">
+    {% for mp3 in mp3_files %}
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+        <div class="card shadow-sm">
+          <a href="{% url 'playtime' id=mp3.id %}" class="text-decoration-none">
+            <div class="card-img-top audio-thumbnail" 
+                 style="background: url('https://picsum.photos/id/{{mp3.id}}/300/200'); background-size: cover; height: 180px;">
+            </div>
+          </a>
+          <div class="card-body text-center">
+            <h6 class="text-dark mb-2">{{ mp3.title }}</h6>
+            <p class="small text-muted">{{ mp3.date }}</p>
+
+            <!-- Delete Button -->
+            <button class="btn btn-sm btn-danger delete-btn" data-id="{{ mp3.id }}">
+              🗑 Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="d-flex justify-content-between mt-4">
+    {% if mp3_files.has_previous %}
+      <a href="?search={{ request.GET.search }}&page={{ mp3_files.previous_page_number }}" class="btn btn-outline-primary btn-sm px-3" id="prev">⬅ Previous</a>
+    {% else %}
+      <button class="btn btn-outline-secondary btn-sm px-3" disabled>⬅ Previous</button>
+    {% endif %}
+
+    <span>Page {{ mp3_files.number }} of {{ mp3_files.paginator.num_pages }}</span>
+
+    {% if mp3_files.has_next %}
+      <a href="?search={{ request.GET.search }}&page={{ mp3_files.next_page_number }}" class="btn btn-outline-primary btn-sm px-4" id="next">Next ➡</a>
+    {% else %}
+      <button class="btn btn-outline-secondary btn-sm px-4" disabled>Next ➡</button>
+    {% endif %}
+  </div>
+</div>
+{% endblock main %}
+
+{% block script %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Search Functionality
+    const searchInput = document.getElementById("searchInput");
+    const searchButton = document.getElementById("searchBtn");
+    const audioFilesDiv = document.getElementById("audioFiles");
+
+    
+      function fetchAudioFiles(query) {
+        fetch(`/mp3files/?search=${query}`)
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const newContent = parser.parseFromString(data, "text/html");
+                const updatedAudioFiles = newContent.querySelector("#audioFiles");
+    
+                if (updatedAudioFiles) {
+                    document.getElementById("audioFiles").innerHTML = updatedAudioFiles.innerHTML;
+                } else {
+                    console.error("Error: #audioFiles not found in response.");
+                }
+            })
+            .catch(error => console.error("Error fetching audio files:", error));
+    }
+
+    searchInput.addEventListener("input", function () {
+      fetchAudioFiles(this.value);
+    });
+
+    searchButton.addEventListener("click", function () {
+      fetchAudioFiles(searchInput.value);
+    });
+
+    // Delete Functionality
+    document.body.addEventListener("click", function (event) {
+      if (event.target.classList.contains("delete-btn")) {
+        const mp3Id = event.target.getAttribute("data-id");
+
+        if (confirm("Are you sure you want to delete this MP3 file?")) {
+          fetch(`/delete_mp3/${mp3Id}/`, {
+            method: "DELETE",
+            headers: { "X-CSRFToken": "{{ csrf_token }}" }
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              alert("MP3 file deleted successfully!");
+              event.target.closest(".col-lg-3").remove();
+            } else {
+              alert("Failed to delete MP3 file.");
+            }
+          })
+          .catch(error => console.error("Error deleting file:", error));
+        }
+      }
+    });
+  });
+</script>
+{% endblock script %}
