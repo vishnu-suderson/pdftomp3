@@ -14,6 +14,7 @@ urlpatterns = [
     path('play/<int:id>/',views.playtime, name="playtime"),
     path('mp3files/',views.audio_files_view, name="mp3files"),
 
+path('delete_pdf/<int:pdf_id>/', views.delete_pdf, name='delete_pdf'),
 
  path('progress', views.progress, name='progress'),
 

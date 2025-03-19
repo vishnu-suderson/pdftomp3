@@ -97,6 +97,16 @@ class VoiceAssistant {
             return this.listFiles('pdf');
         }
 
+        const openMatch = text.match(/open (one|two|three|four|five|six|seven|eight)/);
+        if (openMatch) {
+            const numbers = {
+                "one": 1, "two": 2, "three": 3, "four": 4,
+                "five": 5, "six": 6, "seven": 7, "eight": 8
+            };
+            const count = numbers[openMatch[1]];
+            return this.openMultipleFiles(count);
+        }
+
         // File operations (play, preview, delete, convert)
         const fileName = this.extractFileName(text);
         if (fileName) {
@@ -128,9 +138,9 @@ class VoiceAssistant {
         // Utility commands
         if (this.matchesCommand(text, ['toggle dark mode', 'dark mode'])) {
            document.documentElement.setAttribute(
-    "data-theme",
-    document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light"
-);
+            "data-theme",
+            document.documentElement.getAttribute("data-theme") === "light" ? "dark" : "light"
+        );
             return "Dark mode toggled.";
         }
 
@@ -235,6 +245,18 @@ class VoiceAssistant {
             "'delete file.mp3', 'convert file.pdf', 'go to profile', 'go to settings', " +
             "'next', 'previous', 'back', 'toggle dark mode'. You can also say 'help' for assistance.";
     }
+
+openMultipleFiles(count) {
+    let section = document.getElementById("audioFiles") || document.getElementById("PdfFiles");
+    if (!section) return "Please go to the Audio or PDF files page first.";
+
+    const links = Array.from(section.querySelectorAll(".card a")).slice(0, count);
+    if (links.length === 0) return "No files found to open.";
+
+    links.forEach(link => window.open(link.href)); // Opens files in new tabs
+    return `Opening ${links.length} file(s).`;
+}
+
 }
 
 // Start the assistant

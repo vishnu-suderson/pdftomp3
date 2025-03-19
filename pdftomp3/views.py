@@ -372,6 +372,17 @@ def delete_mp3(request, mp3_id):
             os.remove(file_path)
         return JsonResponse({"success": True})
     return JsonResponse({"success": False}, status=400)
+
+
+def delete_pdf(request, pdf_id):
+    if request.method == "DELETE":
+        mp3_file = get_object_or_404(MP3File, id=pdf_id, user=request.user.profile)
+        file_path = mp3_file.pdf_file.path
+        mp3_file.delete()
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        return JsonResponse({"success": True})
+    return JsonResponse({"success": False}, status=400)
  
 from django.shortcuts import get_object_or_404, render, redirect
 from .models import PDFFile, Profile

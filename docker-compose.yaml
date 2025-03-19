@@ -30,9 +30,9 @@ services:
       - "8000:8000"
     environment:
       - DB_HOST=db
-      - DB_NAME=mydatabase
-      - DB_USER=myuser
-      - DB_PASSWORD=mypassword
+      - DB_NAME=pdf
+      - DB_USER=root
+      - DB_PASSWORD=Suderson14@
       - CELERY_BROKER_URL=redis://redis:6379/0
     volumes:
       - .:/app

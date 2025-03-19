@@ -11,11 +11,11 @@
     body {
         font-family: Arial, sans-serif;
         background-color: #121212;
-        color: #100f0f;
+        color:rgb(6, 6, 6);
         margin: 0;
         padding: 0;
     }
-    
+
     /* Main Container */
     .main-content {
         display: flex;
@@ -25,7 +25,7 @@
         padding: 20px;
         gap: 20px;
     }
-    
+
     /* Content Section (Player) */
     .content {
         flex: 1 1 500px;
@@ -49,7 +49,7 @@
         margin-bottom: 20px;
         object-fit: cover;
     }
-    
+
     /* Controls */
     .controls {
         display: flex;
@@ -80,7 +80,7 @@
     .controls .volume input {
         margin-left: 10px;
     }
-    
+
     /* Playtime / Progress */
     .playtime {
         width: 100%;
@@ -92,12 +92,12 @@
     }
     .playtime span {
         font-size: 14px;
-        color: #010101;
+        color:rgb(8, 7, 7);
     }
     #playbackRange {
         width: 100%;
     }
-    
+
     /* Playlist Section */
     .playlist {
         flex: 0 1 400px;
@@ -113,7 +113,7 @@
         display: flex;
         align-items: center;
         padding: 10px;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid rgb(23, 18, 18);
         cursor: pointer;
         transition: background 0.3s ease;
     }
@@ -130,9 +130,9 @@
     }
     .playlist ul li span {
         font-size: 14px;
-        color: #3b3b3b;
+        color:rgb(0, 0, 0);
     }
-    
+
     /* Responsive Adjustments */
     @media screen and (max-width: 768px) {
         .content img {
@@ -161,13 +161,14 @@
         <img id="current-song-image" src="https://picsum.photos/id/{{ mp3file.id }}/200/300" alt="Song Cover" width="300" height="300">
         
         <audio id="audioPlayer" preload="metadata">
-            <source id="audioSource" src="/media/{{ mp3file.mp3_file }}" type="audio/mpeg">
+            <source id="audioSource" src="{{ mp3file.mp3_file.url }}" type="audio/mpeg">
             Your browser does not support the audio element.
         </audio>
         
         <div class="playtime">
             <span id="currentTime">0:00</span>
-            <input type="range" min="0" value="0" id="playbackRange">
+            <input type="range" min="0" value="0" max="100" id="playbackRange">
+            <span id="duration">0:00</span>
         </div>
         
         <div class="controls">
@@ -188,7 +189,7 @@
     <div class="playlist">
         <ul id="playlist">
             {% for song in mp3fileall %}
-            <li data-id="{{ song.id }}" data-src="{{ song.mp3_file.url }}" data-title="{{ song.title }}" data-image="{{ song.cover_image.url }}"
+            <li data-id="{{ song.id }}" data-src="{{ song.mp3_file.url }}" data-title="{{ song.title }}" data-image="https://picsum.photos/id/{{ song.id }}/200/300"
                 {% if song.id == mp3file.id %}class="active-song"{% endif %}>
                 <img src="https://picsum.photos/id/{{ song.id }}/200/300" alt="Song Cover">
                 <span>{{ song.title }}</span>
@@ -208,37 +209,38 @@
     const volumeRange = document.getElementById('volumeRange');
     const playbackRange = document.getElementById('playbackRange');
     const currentTimeDisplay = document.getElementById('currentTime');
+    const durationDisplay = document.getElementById('duration');
     const playlist = document.getElementById('playlist');
     const audioSource = document.getElementById('audioSource');
     const currentSongTitle = document.getElementById('current-song-title');
     const currentSongImage = document.getElementById('current-song-image');
     
     let songs = Array.from(playlist.getElementsByTagName('li'));
-    let currentIndex = parseInt("{{ current_index }}") || 0;
-    let totalSongs = parseInt("{{ total_songs }}") || songs.length;
-    
+    let currentIndex = songs.findIndex(song => song.classList.contains('active-song'));
+    let totalSongs = songs.length;
+
+    // Load a song by index
     function loadSong(index) {
         if (index < 0 || index >= totalSongs) return;
         let song = songs[index];
         let newSrc = song.dataset.src;
         let newTitle = song.dataset.title;
-        let newImage = `https://picsum.photos/id/${song.dataset.id}/200/300`;
-        let newId = song.dataset.id;
-    
+        let newImage = song.dataset.image;
+
         audioSource.src = newSrc;
         currentSongTitle.textContent = newTitle;
         currentSongImage.src = newImage;
         audioPlayer.load();
         audioPlayer.play();
         playBtn.innerHTML = '<i class="fas fa-pause"></i>';
-    
+
         songs.forEach(s => s.classList.remove('active-song'));
         song.classList.add('active-song');
-    
+
         currentIndex = index;
-        window.history.pushState(null, "", `/playtime/${newId}/`);
     }
-    
+
+    // Play/Pause button
     playBtn.addEventListener('click', () => {
         if (audioPlayer.paused) {
             audioPlayer.play();
@@ -248,42 +250,58 @@
             playBtn.innerHTML = '<i class="fas fa-play"></i>';
         }
     });
-    
+
+    // Volume control
     volumeRange.addEventListener('input', () => {
         audioPlayer.volume = volumeRange.value / 100;
     });
-    
-    playbackRange.addEventListener('input', () => {
-        audioPlayer.currentTime = playbackRange.value;
-    });
-    
+
+    // Playback progress
     audioPlayer.addEventListener('timeupdate', () => {
         let minutes = Math.floor(audioPlayer.currentTime / 60);
         let seconds = Math.floor(audioPlayer.currentTime % 60);
         currentTimeDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        playbackRange.value = audioPlayer.currentTime;
+        playbackRange.value = (audioPlayer.currentTime / audioPlayer.duration) * 100;
     });
-    
+
+    // Update duration
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        let minutes = Math.floor(audioPlayer.duration / 60);
+        let seconds = Math.floor(audioPlayer.duration % 60);
+        durationDisplay.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    });
+
+    // Seek functionality
+    playbackRange.addEventListener('input', () => {
+        audioPlayer.currentTime = (playbackRange.value / 100) * audioPlayer.duration;
+    });
+
+    // Next song
     nextBtn.addEventListener('click', () => {
         if (currentIndex < totalSongs - 1) {
             loadSong(currentIndex + 1);
         }
     });
-    
+
+    // Previous song
     prevBtn.addEventListener('click', () => {
         if (currentIndex > 0) {
             loadSong(currentIndex - 1);
         }
     });
-    
+
+    // Click on playlist item
     songs.forEach((song, index) => {
         song.addEventListener('click', () => {
             loadSong(index);
         });
     });
-    
-    if (songs[currentIndex]) {
-        songs[currentIndex].classList.add('active-song');
-    }
+
+    // Auto-play next song
+    audioPlayer.addEventListener('ended', () => {
+        if (currentIndex < totalSongs - 1) {
+            loadSong(currentIndex + 1);
+        }
+    });
 </script>
 {% endblock script %}
